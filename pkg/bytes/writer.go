@@ -53,9 +53,9 @@ func (w *Writer) grow(n int) {
 	// 当需要的容量大于两倍扩容的容量,则直接按照新的切片需要的容量 + 原切片的容量
 	if n > 2*oldCap {
 		buf = make([]byte, oldCap+n)
-	} else if len(w.buf) < minThreshold { // 到这里说明了 n < 2 * len(w.buf) 如果 len(w.buf) < 256 那么扩容两倍即可
+	} else if len(w.buf) < minThreshold { // 到这里说明了 n < 2 * len(w.buf) 如果 len(w.buf) < minThreshold 那么扩容两倍即可
 		buf = make([]byte, 2*oldCap)
-	} else { // 到这里说明len(w.buf) > 256 那么开始平滑扩容
+	} else { // 到这里说明len(w.buf) > minThreshold 那么开始平滑扩容
 		newCap := oldCap
 		for 0 < newCap && newCap < oldCap+n {
 			newCap += (newCap + 3*minThreshold) / 4
