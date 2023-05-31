@@ -60,7 +60,6 @@ func (p *Pool) Get() (b *Buffer) {
 	return
 }
 
-// Put put back a memory buffer to free.
 func (p *Pool) Put(b *Buffer) {
 	p.lock.Lock()
 	b.next = p.free
