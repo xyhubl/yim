@@ -1,3 +1,3 @@
-module github.com/common/xytool
+module github.com/xyhubl/xytool
 
 go 1.19
