@@ -1,0 +1,59 @@
+[run]
+tests = false
+skip-dirs = [ "vendor", "go" ]
+timeout= "300s"
+
+[run.output]
+format = "tab"
+
+[linters]
+disable-all = true
+enable = [
+    "unconvert",
+    "megacheck",
+#    "structcheck",
+    #    "gosec",
+    #    "gocyclo",
+    "dupl",
+    "misspell",
+    "unparam",
+#    "varcheck",
+    #    "deadcode",
+#    "typecheck",
+    "ineffassign",
+    "gochecknoinits",
+    "gocritic",
+    #    "godox",
+    "gofmt",
+    "gofumpt",
+    "goimports",
+    #    "lll",
+]
+
+# linter config
+[linters-settings.dupl]
+threshold = 300
+
+[linters-settings.gocritic]
+enabled-tags = [
+    "diagnostic",
+    "experimental",
+    "opinionated",
+    "performance",
+    "style",
+]
+disabled-checks = [
+    "dupImport",
+    "ifElseChain",
+    "octalLiteral",
+    "whyNoLint",
+    "wrapperFunc",
+    "paramTypeCombine",
+    "nilValReturn",
+    "unnamedResult",
+    "unnecessaryBlock",
+    "commentedOutCode",
+    "appendCombine",
+    "truncateCmp",
+    "yodaStyleExpr",
+]

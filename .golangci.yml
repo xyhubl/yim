@@ -1,0 +1,232 @@
+## https://golangci-lint.run/usage/linters/
+## https://golangci-lint.run/usage/configuration/
+run:
+  tests: false
+  skip-dirs:
+    - vendor
+  timeout: 600s
+  output:
+    format: colored-line-number
+linters:
+  disable-all: true
+  enable:
+    ## errcheck	Errcheck is a program for checking for unchecked errors in go programs. These unchecked errors can be critical bugs in some cases
+    ## for our old ancient code, if we enabled this, the code is hard to pass the linter
+    #    - errcheck
+    ## unconvert Remove unnecessary type conversions
+    - unconvert
+    ## megacheck = gosimple + staticcheck + unused
+    ## gosimple	Linter for Go source code that specializes in simplifying a code
+    - gosimple
+    ## gochecknoglobals check that no global variables exist
+    # - gochecknoglobals
+    ## staticcheck	Staticcheck is a go vet on steroids, applying a ton of static analysis checks
+    - staticcheck
+    ## unused	Checks Go code for unused constants, variables, functions and types
+    - unused
+    ## stylecheck	Stylecheck is a replacement for golint, we can only enable this after golangci-lint v1.40.2
+    - stylecheck
+    ## revive	Fast, configurable, extensible, flexible, and beautiful linter for Go. Drop-in replacement of golint.
+    - revive
+    ## rowserrcheck	checks whether Err of rows is checked successfully
+    - rowserrcheck
+    ## sqlclosecheck	Checks that sql.Rows and sql.Stmt are closed.
+    - sqlclosecheck
+    #    - structcheck
+    #    - gocyclo
+    - dupl
+    ## misspell	Finds commonly misspelled English words in comments
+    - misspell
+    # - unparam
+    - typecheck
+    - ineffassign
+    - gochecknoinits
+    - gocritic
+    ## godox	Tool for detection of FIXME, TODO and other comment keywords
+    # - godox
+    - gofmt
+    - gofumpt
+    - goimports
+    - bodyclose
+    - dogsled
+    - durationcheck
+    - errorlint
+    - exhaustive
+    - exportloopref
+    - forbidigo
+    #    - forcetypeassert
+    - goconst
+    ## goprintffuncname	Checks that printf-like functions are named with f at the end
+    - goprintffuncname
+    ## lll Reports long lines, revive has lll feature
+    #    - lll
+    ## gosec	Inspects source code for security problems
+    # - gosec
+    ## ifshort	Checks that your code uses short syntax for if-statements whenever possible
+    #    - ifshort
+    ## importas	Enforces consistent import aliases
+    - importas
+    ## makezero	Finds slice declarations with non-zero initial length
+    - makezero
+    ## nestif	Reports deeply nested if statements
+    #    - nestif
+    ## nilerr	Finds the code that returns nil even if it checks that the error is not nil.
+    - nilerr
+    ## wastedassign	wastedassign finds wasted assignment statements.
+    - wastedassign
+    ## do not enable this linter, trust me :-)
+    #    - whitespace
+    ## enable wsl will make your life change! you can try it if you do not believe me
+    #    - wsl
+    ## bidichk - checks for dangerous unicode character sequences https://github.com/breml/bidichk
+    - bidichk
+    - gomodguard
+    # github.com/daixiang0/gci
+    - gci
+    - contextcheck
+    - interfacebloat
+    - loggercheck
+
+linters-settings:
+  gofumpt:
+    #lang-version: "1.18"
+    # Choose whether to use the extra rules.
+    # Default: false
+    extra-rules: true
+  gci:
+    # Section configuration to compare against.
+    # Section names are case-insensitive and may contain parameters in ().
+    # Default: ["standard", "default"]
+    sections:
+      - standard # Captures all standard packages if they do not match another section.
+      - default # Contains all imports that could not be matched to another section type.
+      - prefix(code.hellotalk.com) # Groups all imports with the specified Prefix.
+  staticcheck:
+    checks:
+      - all
+      # empty branch
+      - "-SA9003"
+  stylecheck:
+    checks:
+      - all
+      - "-ST1000"
+      - "-ST1003"
+      - "-ST1016"
+      - "-ST1020"
+      - "-ST1021"
+      - "-ST1022"
+      - "-ST1023"
+    dot-import-whitelist: []
+    http-status-code-whitelist: []
+
+  ## revive config https://revive.run/r
+  revive:
+    ## config.IgnoreGeneratedHeader: this option is really fuck
+    ## https://github.com/mgechev/revive/blob/c4d52d202d4c4dd7b34899e07899a34b92d62a12/lint/linter.go#L67
+    ## https://github.com/mgechev/revive/issues/4
+    ignore-generated-header: false
+    enable-all-rules: false
+    severity: warning
+    #    confidence: 0.8
+    #    errorCode: 1
+    #    warningCode: 0
+    rules:
+      ## disabled due to false detection of blank-imports like: _ "example.com/my_mysql_driver"
+      #      - name: blank-imports
+      - name: context-as-argument
+      - name: context-keys-type
+      - name: dot-imports
+      - name: error-return
+      # error strings should not be capitalized or end with punctuation or a newline
+      - name: error-strings
+      - name: error-naming
+      ## warns on undocumented exported functions and methods
+      - name: exported
+      - name: import-shadowing
+      - name: if-return
+      - name: increment-decrement
+      #      - name: var-declaration
+      - name: range
+      - name: receiver-naming
+      - name: time-naming
+      - name: unexported-return
+      #      - name: indent-error-flow
+      - name: errorf
+      #      - name: empty-block
+      - name: superfluous-else
+      #      - name: unused-parameter
+      - name: unreachable-code
+      - name: redefines-builtin-id
+      - name: atomic
+  ## it is 2021, fuck 80 chars
+  #      - name: line-length-limit
+  #        arguments:
+  #          - 150
+  ## disabled due to it force all error checking, like mysql Rows.Close, bytes.Buffer.WriteString
+  #      - name: unhandled-error
+  #        severity: warning
+  #        arguments:
+  #          - fmt.Printf
+  dupl:
+    ## tokens count to trigger issue, 150 by default
+    threshold: 100
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+    disabled-checks:
+      - dupImport
+      - ifElseChain
+      - octalLiteral
+      - whyNoLint
+      - wrapperFunc
+      - paramTypeCombine
+      - nilValReturn
+      - unnamedResult
+      - unnecessaryBlock
+      - commentedOutCode
+      - appendCombine
+      - truncateCmp
+      - yodaStyleExpr
+  forbidigo:
+    # Forbid the following identifiers (identifiers are written using regexp):
+    forbid:
+      - 'logger\.(Debug|Info|Warn|Error|Fatal)f'
+      - 'fmt\.Print.*'
+      - 'initman\.*'
+      - 'libcomm\.*'
+  gomodguard:
+    blocked:
+      # List of blocked modules.
+      modules:
+        # Blocked module.
+        - github.com/satori/go.uuid:
+            # Recommended modules that should be used instead. (Optional)
+            recommendations:
+              - github.com/gofrs/uuid
+            # Reason why the recommended module should be used. (Optional)
+            reason: "The satori version has deprecated, see https://github.com/satori/go.uuid/issues/84"
+        - github.com/dgrijalva/jwt-go:
+            recommendations:
+              - github.com/golang-jwt/jwt/v4
+            reason: "CVE-2021-33890 see https://github.com/dgrijalva/jwt-go/issues/482"
+        - code.hellotalk.com/infra/htlog: {}
+        - code.hellotalk.com/go-gyu/gyu/v2:
+            recommendations:
+              - code.hellotalk.com/go-gyu/gyu
+        - code.hellotalk.com/infra/config:
+            recommendations:
+              - code.hellotalk.com/infra/config/v3
+        - code.hellotalk.com/infra/config/v2:
+            recommendations:
+              - code.hellotalk.com/infra/config/v3
+        - code.hellotalk.com/infra/initman:
+            recommendations:
+              - code.hellotalk.com/infra/config/v3
+            reason: "initman module is deprecated"
+#        - code.hellotalk.com/im/common: {}
+#        - code.hellotalk.com/inra/common: {}
+
