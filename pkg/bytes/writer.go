@@ -60,7 +60,7 @@ func (w *Writer) grow(n int) {
 		for 0 < newCap && newCap < oldCap+n {
 			newCap += (newCap + 3*minThreshold) / 4
 		}
-		//zh: 如果精度超出了, 那么新的切片需要的容量 + 原切片的容量
+		// zh: 如果精度超出了, 那么新的切片需要的容量 + 原切片的容量
 		if newCap <= 0 {
 			newCap = oldCap + n
 		}

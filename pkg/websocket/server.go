@@ -4,9 +4,10 @@ import (
 	"crypto/sha1"
 	"encoding/base64"
 	"errors"
-	"github.com/xyhubl/yim/pkg/bufio"
 	"io"
 	"strings"
+
+	"github.com/xyhubl/yim/pkg/bufio"
 )
 
 var (

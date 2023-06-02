@@ -2,10 +2,12 @@ package websocket
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
-	"github.com/xyhubl/yim/pkg/bufio"
 	"net/http"
 	"strings"
+
+	"github.com/xyhubl/yim/pkg/bufio"
 )
 
 type Request struct {
@@ -70,7 +72,7 @@ func (r *Request) readMIMEHeader() (header http.Header, err error) {
 			return
 		}
 		if i = bytes.IndexByte(line, ':'); i <= 0 {
-			err = fmt.Errorf("malformed MIME header line: " + string(line))
+			err = errors.New("malformed MIME header line: " + string(line))
 			return
 		}
 		k = string(line[:i])

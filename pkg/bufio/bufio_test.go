@@ -384,9 +384,11 @@ func (r dataAndEOFReader) Read(p []byte) (int, error) {
 	return copy(p, r), io.EOF
 }
 
-var testOutput = []byte("0123456789abcdefghijklmnopqrstuvwxy")
-var testInput = []byte("012\n345\n678\n9ab\ncde\nfgh\nijk\nlmn\nopq\nrst\nuvw\nxy")
-var testInputrn = []byte("012\r\n345\r\n678\r\n9ab\r\ncde\r\nfgh\r\nijk\r\nlmn\r\nopq\r\nrst\r\nuvw\r\nxy\r\n\n\r\n")
+var (
+	testOutput  = []byte("0123456789abcdefghijklmnopqrstuvwxy")
+	testInput   = []byte("012\n345\n678\n9ab\ncde\nfgh\nijk\nlmn\nopq\nrst\nuvw\nxy")
+	testInputrn = []byte("012\r\n345\r\n678\r\n9ab\r\ncde\r\nfgh\r\nijk\r\nlmn\r\nopq\r\nrst\r\nuvw\r\nxy\r\n\n\r\n")
+)
 
 // TestReader wraps a []byte and returns reads of a specific length.
 type testReader struct {
@@ -411,7 +413,7 @@ func (t *testReader) Read(buf []byte) (n int, err error) {
 }
 
 func testReadLine(t *testing.T, input []byte) {
-	//for stride := 1; stride < len(input); stride++ {
+	// for stride := 1; stride < len(input); stride++ {
 	for stride := 1; stride < 2; stride++ {
 		done := 0
 		reader := testReader{input, stride}
@@ -852,7 +854,6 @@ func TestReaderDiscard(t *testing.T) {
 			t.Errorf("%s: after Discard, Buffered = %d; want %d", tt.name, bn, tt.wantBuffered)
 		}
 	}
-
 }
 
 // An onlyReader only implements io.Reader, no matter what other methods the underlying implementation may have.

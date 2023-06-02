@@ -1,8 +1,9 @@
 package websocket
 
 import (
-	"github.com/xyhubl/github.com/xyhubl/yim/pkg/bufio"
 	"io"
+
+	"github.com/xyhubl/yim/pkg/bufio"
 )
 
 type Conn struct {
