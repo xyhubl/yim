@@ -213,20 +213,4 @@ linters-settings:
             recommendations:
               - github.com/golang-jwt/jwt/v4
             reason: "CVE-2021-33890 see https://github.com/dgrijalva/jwt-go/issues/482"
-        - code.hellotalk.com/infra/htlog: {}
-        - code.hellotalk.com/go-gyu/gyu/v2:
-            recommendations:
-              - code.hellotalk.com/go-gyu/gyu
-        - code.hellotalk.com/infra/config:
-            recommendations:
-              - code.hellotalk.com/infra/config/v3
-        - code.hellotalk.com/infra/config/v2:
-            recommendations:
-              - code.hellotalk.com/infra/config/v3
-        - code.hellotalk.com/infra/initman:
-            recommendations:
-              - code.hellotalk.com/infra/config/v3
-            reason: "initman module is deprecated"
-#        - code.hellotalk.com/im/common: {}
-#        - code.hellotalk.com/inra/common: {}
 
