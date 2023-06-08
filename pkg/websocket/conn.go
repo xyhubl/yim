@@ -69,7 +69,6 @@ func (c *Conn) readFrame() (fin bool, op int, payload []byte, err error) {
 
 	// is final frame
 	fin = (b & finBit) != 0
-
 	// rsv should be 0
 	if rsv := b & (rsv1Bit | rsv2Bit | rsv3Bit); rsv != 0 {
 		return false, 0, nil, fmt.Errorf("unexpected reserved bits rsv1=%d, rsv2=%d, rsv3=%d", b&rsv1Bit, b&rsv2Bit, b&rsv3Bit)
