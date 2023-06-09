@@ -75,7 +75,7 @@ func TestServer(t *testing.T) {
 	}
 }
 
-func TestServer(t *testing.T) {
+func TestServerV1(t *testing.T) {
 	var (
 		wg   sync.WaitGroup
 		err  error

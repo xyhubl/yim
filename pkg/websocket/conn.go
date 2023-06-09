@@ -75,7 +75,6 @@ func (c *Conn) readFrame() (fin bool, op int, payload []byte, err error) {
 	}
 	// op code
 	op = int(b & opBit)
-	fmt.Printf("%b", op)
 
 	// 2.Second byte. Mask/Payload len(7bits)
 	b, err = c.r.ReadByte()
