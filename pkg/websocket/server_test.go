@@ -75,7 +75,7 @@ func TestServer(t *testing.T) {
 	}
 }
 
-func TestWs(t *testing.T) {
+func TestServer(t *testing.T) {
 	var (
 		wg   sync.WaitGroup
 		err  error
@@ -118,7 +118,6 @@ func TestWs(t *testing.T) {
 			t.Error(err)
 			t.FailNow()
 		}
-
 		var (
 			op      int
 			payload []byte
@@ -126,29 +125,33 @@ func TestWs(t *testing.T) {
 		for {
 			op, payload, err = ws.ReadMessage()
 			if err != nil {
-				t.Error(err, op, payload)
 				t.Fatal(err)
 			}
-
-			// ws.WriteMessage(TextMessage, []byte("00000000000000000000000000000001"))
-
 			fmt.Println(string(payload), err, op)
+			if err := ws.WriteMessage(TextMessage, []byte("00000000000000000000000000000001")); err != nil {
+				t.Fatal(err)
+			}
+			if err := ws.Flush(); err != nil {
+				t.Fatal(err)
+			}
 		}
 	}()
 	wg.Wait()
 }
 
-func TestWs2(t *testing.T) {
+func TestClient(t *testing.T) {
 
 	serverURL := "ws://127.0.0.1:8080/sub"
 
 	// 解析WebSocket服务器地址
+	addr, _ := net.ResolveTCPAddr("tcp4", "127.0.0.1:8080")
+
 	u, err := url2.Parse(serverURL)
 	if err != nil {
 		log.Fatal("Failed to parse server URL:", err)
 	}
 	// 建立TCP连接
-	conn, err := net.Dial("tcp", u.Host)
+	conn, err := net.DialTCP("tcp", nil, addr)
 	if err != nil {
 		log.Fatal("Failed to connect to server:", err)
 	}
@@ -156,30 +159,44 @@ func TestWs2(t *testing.T) {
 	// 发送WebSocket协议升级请求
 	key := generateWebSocketKey()
 	request := createWebSocketUpgradeRequest(u, key)
-	fmt.Fprintf(conn, "%s\r\n", request)
-
+	fmt.Fprintf(conn, "%s", request)
 	// 读取和验证升级响应
-	response, err := bufio2.NewReader(conn).ReadString('\n')
+	b := bufio2.NewReader(conn)
+	response, err := b.ReadString('\n')
 	if err != nil {
 		log.Fatal("Failed to read server response:", err)
 	}
 	if !strings.HasPrefix(response, "HTTP/1.1 101 Switching Protocols") {
 		log.Fatal("Failed to upgrade connection:", response)
 	}
-	//r := bufio.NewReaderSize(conn, 32)
-	//w := bufio.NewWriterSize(conn, 32)
+	for {
+		lineB, _, _ := b.ReadLine()
+		if string(lineB) == "" {
+			break
+		}
+	}
 
-	time.Sleep(1 * time.Second)
-	f := createWebSocketFrame("000000000001")
-	conn.Write(f)
+	r := bufio.NewReaderSize(conn, 32)
+	w := bufio.NewWriterSize(conn, 32)
 
-	//for {
-	//	n, payload, err := c.ReadMessage()
-	//	if err != nil {
-	//		t.Fatal(err)
-	//	}
-	//	fmt.Println(n, string(payload), "=======")
-	//}
+	c := newConn(conn, r, w)
+
+	for {
+		if err = c.WriteMessage(TextMessage, []byte("00000000000000000000000000000001")); err != nil {
+			t.Fatal(err)
+		}
+		if err = c.Flush(); err != nil {
+			t.Fatal(err)
+		}
+		n, payload, err := c.ReadMessage()
+		if err != nil {
+			t.Fatal(err)
+		}
+		fmt.Println(n, string(payload))
+
+		fmt.Println(rand.Intn(1000))
+	}
+	c.Close()
 }
 
 func createWebSocketUpgradeRequest(u *url2.URL, key string) string {
@@ -197,48 +214,4 @@ func generateWebSocketKey() string {
 	nonce := make([]byte, 16)
 	rand.Read(nonce)
 	return base64.StdEncoding.EncodeToString(nonce)
-}
-
-func createWebSocketFrame(message string) []byte {
-	// 设置帧的FIN位、操作码和负载数据
-	finBit := byte(1 << 7)
-	opCode := byte(0x01) // 文本消息操作码
-	payloadData := []byte(message)
-
-	// 创建WebSocket帧
-	frame := make([]byte, 2+len(payloadData))
-
-	// 设置第一个字节：FIN位和操作码
-	frame[0] = finBit | opCode
-
-	// 设置第二个字节：Mask位和负载数据长度
-	maskBit := byte(1 << 7)
-	payloadLen := len(payloadData)
-
-	if payloadLen <= 125 {
-		frame[1] = byte(payloadLen) | maskBit
-	} else if payloadLen <= 65535 {
-		frame[1] = 126 | maskBit
-		frame[2] = byte(payloadLen >> 8)
-		frame[3] = byte(payloadLen)
-	} else {
-		frame[1] = 127 | maskBit
-		frame[2] = byte(payloadLen >> 56)
-		frame[3] = byte(payloadLen >> 48)
-		frame[4] = byte(payloadLen >> 40)
-		frame[5] = byte(payloadLen >> 32)
-		frame[6] = byte(payloadLen >> 24)
-		frame[7] = byte(payloadLen >> 16)
-		frame[8] = byte(payloadLen >> 8)
-		frame[9] = byte(payloadLen)
-	}
-
-	// 设置掩码和负载数据
-	mask := []byte{0x01, 0x02, 0x03, 0x04} // 用于对负载数据进行掩码处理
-	copy(frame[len(frame)-len(payloadData):], payloadData)
-	for i := 0; i < len(payloadData); i++ {
-		frame[i+len(frame)-len(payloadData)] ^= mask[i%4]
-	}
-
-	return frame
 }
