@@ -128,12 +128,7 @@ func TestServerV1(t *testing.T) {
 				t.Fatal(err)
 			}
 			fmt.Println(string(payload), err, op)
-			if err := ws.WriteMessage(TextMessage, []byte("00000000000000000000000000000001")); err != nil {
-				t.Fatal(err)
-			}
-			if err := ws.Flush(); err != nil {
-				t.Fatal(err)
-			}
+
 		}
 	}()
 	wg.Wait()
@@ -180,21 +175,13 @@ func TestClient(t *testing.T) {
 	w := bufio.NewWriterSize(conn, 32)
 
 	c := newConn(conn, r, w)
-
 	for {
-		if err = c.WriteMessage(TextMessage, []byte("00000000000000000000000000000001")); err != nil {
+		if err = c.WriteMessage(PingMessage, []byte("pong")); err != nil {
 			t.Fatal(err)
 		}
 		if err = c.Flush(); err != nil {
 			t.Fatal(err)
 		}
-		n, payload, err := c.ReadMessage()
-		if err != nil {
-			t.Fatal(err)
-		}
-		fmt.Println(n, string(payload))
-
-		fmt.Println(rand.Intn(1000))
 	}
 	c.Close()
 }

@@ -7,8 +7,8 @@ import (
 
 func TestWriter_Write(t *testing.T) {
 	w := NewWriterSize(0)
-	for i := 0; i < 30; i++ {
-		w.Write(make([]byte, 1024, 1024))
+	for i := 0; i >= 0; i++ {
+		w.Write(make([]byte, 1024*100, 1024*100))
 		t.Log(w.Size(), w.n)
 	}
 }
