@@ -2,12 +2,11 @@ package comet
 
 import (
 	"errors"
+
 	"github.com/xyhubl/yim/api/protocol"
 )
 
-var (
-	ErrSignalFullMsgDropped = errors.New("channel: signal channel full, msg dropped")
-)
+var ErrSignalFullMsgDropped = errors.New("channel: signal channel full, msg dropped")
 
 type Channel struct {
 	// zh: 连接IP

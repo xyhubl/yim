@@ -2,6 +2,7 @@ package protocol
 
 import (
 	"errors"
+
 	"github.com/xyhubl/yim/pkg/encoding/binary"
 	"github.com/xyhubl/yim/pkg/websocket"
 )

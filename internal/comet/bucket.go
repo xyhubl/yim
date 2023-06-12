@@ -1,9 +1,10 @@
 package comet
 
 import (
+	"sync"
+
 	pb "github.com/xyhubl/yim/api/comet"
 	"github.com/xyhubl/yim/internal/comet/conf"
-	"sync"
 )
 
 type Bucket struct {

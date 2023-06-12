@@ -2,13 +2,12 @@ package comet
 
 import (
 	"errors"
-	"github.com/xyhubl/yim/api/protocol"
 	"sync"
+
+	"github.com/xyhubl/yim/api/protocol"
 )
 
-var (
-	ErrRoomDroped = errors.New("room: droped")
-)
+var ErrRoomDroped = errors.New("room: droped")
 
 type Room struct {
 	// zh: 房间ID
