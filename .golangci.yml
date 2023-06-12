@@ -119,9 +119,9 @@ linters-settings:
     dot-import-whitelist: []
     http-status-code-whitelist: []
 
-  ## revive config https://revive.run/r
+  ## revive conf https://revive.run/r
   revive:
-    ## config.IgnoreGeneratedHeader: this option is really fuck
+    ## conf.IgnoreGeneratedHeader: this option is really fuck
     ## https://github.com/mgechev/revive/blob/c4d52d202d4c4dd7b34899e07899a34b92d62a12/lint/linter.go#L67
     ## https://github.com/mgechev/revive/issues/4
     ignore-generated-header: false

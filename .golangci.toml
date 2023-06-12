@@ -30,7 +30,7 @@ enable = [
     #    "lll",
 ]
 
-# linter config
+# linter conf
 [linters-settings.dupl]
 threshold = 300
 
