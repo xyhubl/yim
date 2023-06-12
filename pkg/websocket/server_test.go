@@ -95,28 +95,29 @@ func TestServerV1(t *testing.T) {
 	wg.Add(1)
 
 	conn, err = l.AcceptTCP()
+	fmt.Println("coming .....")
 	if err != nil {
 		t.Error(err)
 		t.FailNow()
 	}
 	go func() {
-		r := bufio.NewReaderSize(conn, 32)
-		w := bufio.NewWriterSize(conn, 32)
+		r := bufio.NewReaderSize(conn, 4096*2)
+		w := bufio.NewWriterSize(conn, 4096*2)
 
 		req, err = ReadRequest(r)
 		if err != nil {
 			t.Error(err)
-			t.FailNow()
+			return
 		}
 
 		if req.RequestURI != "/sub" {
 			t.Errorf("wrong uri: %s", req.RequestURI)
-			t.FailNow()
+			return
 		}
 		ws, err = Upgrade(conn, r, w, req)
 		if err != nil {
 			t.Error(err)
-			t.FailNow()
+			return
 		}
 		var (
 			op      int
@@ -125,10 +126,10 @@ func TestServerV1(t *testing.T) {
 		for {
 			op, payload, err = ws.ReadMessage()
 			if err != nil {
-				t.Fatal(err)
+				t.Error(err)
+				return
 			}
 			fmt.Println(string(payload), err, op)
-
 		}
 	}()
 	wg.Wait()

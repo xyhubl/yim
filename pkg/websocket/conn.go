@@ -158,15 +158,10 @@ func (c *Conn) ReadMessage() (op int, payload []byte, err error) {
 				return
 			}
 		case PingMessage:
-			if err = c.WriteMessage(PongMessage, []byte("ping")); err != nil {
+			if err = c.WriteMessage(PongMessage, partPayload); err != nil {
 				return
 			}
-			return op, partPayload, nil
 		case PongMessage:
-			if err = c.WriteMessage(PingMessage, []byte("pong")); err != nil {
-				return
-			}
-			return op, partPayload, nil
 		case CloseMessage:
 			err = ErrMessageClose
 			return
