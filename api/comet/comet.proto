@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package yim.comet;
+
+option go_package = "github.com/xyhubl/yim/api/comet;comet";
+
+import "protocol/protocol.proto";
+
+message BroadcastRoomReq {
+    string roomID = 1;
+    yim.protocol.Proto  proto = 2;
+}

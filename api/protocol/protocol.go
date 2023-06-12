@@ -11,6 +11,11 @@ var (
 	ErrProtoHeaderLen = errors.New("protocol: default server codec header length error")
 )
 
+var (
+	ProtoReady  = &Proto{Op: OpProtoReady}
+	ProtoFinish = &Proto{Op: OpProtoFinish}
+)
+
 const (
 	MaxBodySize = int32(1 << 12)
 
