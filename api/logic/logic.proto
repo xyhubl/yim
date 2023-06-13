@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package yim.comet;
+
+option go_package = "github.com/xyhubl/yim/api/logic;logic";
+
+message ConnectReq {
+  string server = 1;
+  string cookie = 2;
+  bytes  token = 3;
+}
+
+message ConnectReply {
+  int64 mid = 1;
+  string key = 2;
+  string roomID = 3;
+  repeated int32 accepts = 4;
+  int64 heartbeat = 5;
+}
+
+message DisconnectReq {
+  int64 mid = 1;
+  string key = 2;
+  string server = 3;
+}
+
+message DisconnectReply {
+  bool has = 1;
+}
+
+message HeartbeatReq {
+  int64 mid = 1;
+  string key = 2;
+  string server = 3;
+}
+
+message HeartbeatReply {
+}
+
+service Logic {
+  rpc Connect(ConnectReq) returns (ConnectReply);
+  rpc Disconnect(DisconnectReq) returns (DisconnectReply);
+  rpc Heartbeat(HeartbeatReq) returns (HeartbeatReply);
+}

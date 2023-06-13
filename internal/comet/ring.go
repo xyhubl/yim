@@ -2,7 +2,6 @@ package comet
 
 import (
 	"errors"
-
 	"github.com/xyhubl/yim/api/protocol"
 )
 
@@ -47,7 +46,7 @@ func (r *Ring) Get() (proto *protocol.Proto, err error) {
 	if r.rp == r.wp {
 		return nil, ErrRingEmpty
 	}
-	proto = &r.data[r.rp&r.wp]
+	proto = &r.data[r.rp&r.mask]
 	return
 }
 
@@ -57,6 +56,10 @@ func (r *Ring) Set() (proto *protocol.Proto, err error) {
 	}
 	proto = &r.data[r.wp&r.mask]
 	return
+}
+
+func (r *Ring) GetAdv() {
+	r.rp++
 }
 
 func (r *Ring) SetAdv() {

@@ -143,7 +143,7 @@ func (s *Server) ServeWebsocket(conn net.Conn, rp, wp *bytes.Pool, tr *xtime.Tim
 		wp.Put(wb)
 		tr.Del(trd)
 		if err != io.EOF && err != websocket.ErrMessageClose {
-			log.Printf("[ERROR]: websocket authWebsocket err: %v, key: %s, remoteIP: %s, step: %d", err, conn.RemoteAddr().String(), ch.Key, step)
+			log.Printf("[ERROR]: websocket authWebsocket err: %v, key: %s, remoteIP: %s, step: %d", err, ch.Key, conn.RemoteAddr().String(), step)
 		}
 		return
 	}
@@ -164,7 +164,6 @@ func (s *Server) ServeWebsocket(conn net.Conn, rp, wp *bytes.Pool, tr *xtime.Tim
 			tr.Set(trd, hb)
 			p.Op = protocol.OpHeartbeatReply
 			p.Body = nil
-
 			if now := time.Now(); now.Sub(lastHb) > serverHeartbeat {
 				// todo 发送心跳
 			}
