@@ -25,6 +25,10 @@ func NewPool(num, size int) (p *Pool) {
 	return
 }
 
+func (p *Pool) Init(num, size int) {
+	p.init(num, size)
+}
+
 func (p *Pool) init(num, size int) {
 	p.num = num
 	p.size = size

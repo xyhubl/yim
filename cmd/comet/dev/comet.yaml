@@ -1,0 +1,6 @@
+bucket:
+  size: 32
+  channel: 1024
+  room: 1024
+  routine_amount: 32
+  routine_size: 1024
