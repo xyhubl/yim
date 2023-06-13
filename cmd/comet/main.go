@@ -1,13 +1,14 @@
 package main
 
 import (
-	"github.com/xyhubl/yim/internal/comet"
-	"github.com/xyhubl/yim/internal/comet/conf"
-	"github.com/xyhubl/yim/pkg/vipers"
 	"os"
 	"os/signal"
 	"runtime"
 	"syscall"
+
+	"github.com/xyhubl/yim/internal/comet"
+	"github.com/xyhubl/yim/internal/comet/conf"
+	"github.com/xyhubl/yim/pkg/vipers"
 )
 
 func main() {

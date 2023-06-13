@@ -4,7 +4,6 @@ import (
 	bufio2 "bufio"
 	"encoding/base64"
 	"fmt"
-	"github.com/xyhubl/yim/pkg/bufio"
 	"log"
 	"math/rand"
 	"net"
@@ -15,13 +14,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/xyhubl/yim/pkg/bufio"
+
 	"golang.org/x/net/websocket"
 )
 
 func TestServer(t *testing.T) {
-	var (
-		data = []byte{0, 1, 2}
-	)
+	data := []byte{0, 1, 2}
 	ln, err := net.Listen("tcp", ":8080")
 	if err != nil {
 		t.FailNow()
@@ -136,7 +135,6 @@ func TestServerV1(t *testing.T) {
 }
 
 func TestClient(t *testing.T) {
-
 	serverURL := "ws://127.0.0.1:8080/sub"
 
 	// 解析WebSocket服务器地址

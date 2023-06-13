@@ -1,17 +1,18 @@
 package comet
 
 import (
-	"github.com/xyhubl/yim/api/protocol"
-	"github.com/xyhubl/yim/pkg/bytes"
-	xtime "github.com/xyhubl/yim/pkg/time"
-	"github.com/xyhubl/yim/pkg/websocket"
-	"golang.org/x/net/context"
 	"io"
 	"log"
 	"math"
 	"net"
 	"strings"
 	"time"
+
+	"github.com/xyhubl/yim/api/protocol"
+	"github.com/xyhubl/yim/pkg/bytes"
+	xtime "github.com/xyhubl/yim/pkg/time"
+	"github.com/xyhubl/yim/pkg/websocket"
+	"golang.org/x/net/context"
 )
 
 func InitWebsocket(server *Server, addrs []string, accept int) (err error) {
@@ -59,7 +60,8 @@ func acceptWebsocket(server *Server, lis *net.TCPListener) {
 			return
 		}
 		go server.ServeWebsocket(conn, server.round.Reader(r), server.round.Writer(r), server.round.Timer(r))
-		if r++; r == math.MaxInt {
+		r++
+		if r == math.MaxInt {
 			r = 0
 		}
 	}
@@ -184,11 +186,11 @@ func (s *Server) ServeWebsocket(conn net.Conn, rp, wp *bytes.Pool, tr *xtime.Tim
 	ch.Close()
 	rp.Put(rb)
 	// todo 关闭连接
-
 }
 
 func (s *Server) authWebsocket(ctx context.Context, ws *websocket.Conn, p *protocol.Proto, cookie string) (mid int64, key, rid string,
-	accepts []int32, hb time.Duration, err error) {
+	accepts []int32, hb time.Duration, err error,
+) {
 	for {
 		if err = p.ReadWebsocket(ws); err != nil {
 			return

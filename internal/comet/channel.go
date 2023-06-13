@@ -2,8 +2,9 @@ package comet
 
 import (
 	"errors"
-	"github.com/xyhubl/yim/pkg/bufio"
 	"sync"
+
+	"github.com/xyhubl/yim/pkg/bufio"
 
 	"github.com/xyhubl/yim/api/protocol"
 )

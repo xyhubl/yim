@@ -1,10 +1,11 @@
 package comet
 
 import (
-	"github.com/xyhubl/yim/internal/comet/conf"
-	"github.com/zhenjl/cityhash"
 	"math/rand"
 	"time"
+
+	"github.com/xyhubl/yim/internal/comet/conf"
+	"github.com/zhenjl/cityhash"
 )
 
 const (

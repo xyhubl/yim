@@ -3,16 +3,15 @@ package vipers
 import (
 	"errors"
 	"flag"
-	"github.com/fsnotify/fsnotify"
-	"github.com/spf13/viper"
 	"log"
 	"os"
 	"reflect"
+
+	"github.com/fsnotify/fsnotify"
+	"github.com/spf13/viper"
 )
 
-var (
-	ErrConfTyp = errors.New("vipers: only a pointer to struct or map can be unmarshalled from config content")
-)
+var ErrConfTyp = errors.New("vipers: only a pointer to struct or map can be unmarshalled from config content")
 
 type ViperConf struct {
 	conf interface{}
@@ -61,7 +60,7 @@ func (v *ViperConf) initViperConf(path string) error {
 	if err != nil {
 		return err
 	}
-	//获取项目的执行路径
+	// zh: 获取项目的执行路径
 	dir, err = os.Getwd()
 	if err != nil {
 		return err
@@ -71,7 +70,7 @@ func (v *ViperConf) initViperConf(path string) error {
 	vip.AddConfigPath(dir)
 	vip.SetConfigName(file.Name())
 	vip.SetConfigType(v.opts.configType)
-	if err = vip.ReadInConfig(); err != nil {
+	if err := vip.ReadInConfig(); err != nil {
 		return err
 	}
 	if v.opts.openWatching {
@@ -83,7 +82,7 @@ func (v *ViperConf) initViperConf(path string) error {
 			}
 		})
 	}
-	if err = vip.Unmarshal(v.conf); err != nil {
+	if err := vip.Unmarshal(v.conf); err != nil {
 		return err
 	}
 	return nil

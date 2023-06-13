@@ -1,17 +1,18 @@
 package grpc
 
 import (
+	"net"
+	"time"
+
 	pb "github.com/xyhubl/yim/api/logic"
 	"github.com/xyhubl/yim/internal/logic"
 	"github.com/xyhubl/yim/internal/logic/conf"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
-	"net"
-	"time"
 )
 
-func New(c conf.RPCServer, l *logic.Logic) *grpc.Server {
+func New(c *conf.RPCServer, l *logic.Logic) *grpc.Server {
 	opts := grpc.KeepaliveParams(keepalive.ServerParameters{
 		MaxConnectionIdle:     time.Second * time.Duration(c.IdleTimeout),       // 指定连接的最大空闲时间。如果连接在指定的空闲时间内没有出现任何活动（即没有进行 RPC 请求或连接建立），服务器将发送 GoAway 帧关闭连接。默认值是无限大，表示没有限制
 		MaxConnectionAge:      time.Second * time.Duration(c.MaxLifeTime),       // 指定连接的最大存在时间。如果连接存在的时间超过指定的时间，服务器将发送 GoAway 帧关闭连接。默认值是无限大，表示没有限制。为了避免连接风暴，最大存在时间会加上一个随机抖动值

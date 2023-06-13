@@ -36,7 +36,8 @@ func NewRound(c *conf.Config) (r *Round) {
 			WriteBufSize: c.TCP.WriteBufSize,
 			Timer:        c.Protocol.Timer,
 			TimerSize:    c.Protocol.TimerSize,
-		}}
+		},
+	}
 	// zh: 初始化读取缓冲区
 	// en: initialize read buffer
 	r.readers = make([]bytes.Pool, r.options.Reader)

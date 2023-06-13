@@ -2,6 +2,7 @@ package comet
 
 import (
 	"errors"
+
 	"github.com/xyhubl/yim/api/protocol"
 )
 
