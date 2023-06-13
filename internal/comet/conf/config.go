@@ -3,10 +3,11 @@ package conf
 import "github.com/xyhubl/yim/pkg/vipers"
 
 type Config struct {
-	Base     vipers.Base `mapstructure:"base"`
-	TCP      *TCP        `mapstructure:"tcp"`
-	Protocol *Protocol   `mapstructure:"protocol"`
-	Bucket   *Bucket     `mapstructure:"bucket"`
+	Base      vipers.Base `mapstructure:"base"`
+	TCP       *TCP        `mapstructure:"tcp"`
+	Protocol  *Protocol   `mapstructure:"protocol"`
+	Bucket    *Bucket     `mapstructure:"bucket"`
+	Websocket *Websocket  `mapstructure:"websocket"`
 }
 
 type TCP struct {
@@ -23,11 +24,11 @@ type TCP struct {
 }
 
 type Protocol struct {
-	Timer            int
-	TimerSize        int
-	SvrProto         int
-	CliProto         int
-	HandshakeTimeout int
+	Timer            int `mapstructure:"timer"`
+	TimerSize        int `mapstructure:"timer_size"`
+	SvrProto         int `mapstructure:"svr_proto"`
+	CliProto         int `mapstructure:"cli_proto"`
+	HandshakeTimeout int `mapstructure:"handshake_timeout"`
 }
 
 type Bucket struct {
@@ -36,4 +37,8 @@ type Bucket struct {
 	Room          int    `mapstructure:"room"`
 	RoutineAmount uint64 `mapstructure:"routine_amount"`
 	RoutineSize   int    `mapstructure:"routine_size"`
+}
+
+type Websocket struct {
+	Bind []string `mapstructure:"bind"`
 }

@@ -1,6 +1,16 @@
 package comet
 
-import "github.com/xyhubl/yim/internal/comet/conf"
+import (
+	"github.com/xyhubl/yim/internal/comet/conf"
+	"github.com/zhenjl/cityhash"
+	"math/rand"
+	"time"
+)
+
+const (
+	minServerHeartbeat = time.Minute * 10
+	maxServerHeartbeat = time.Minute * 30
+)
 
 type Server struct {
 	c         *conf.Config
@@ -23,4 +33,15 @@ func NewServer(c *conf.Config) *Server {
 		s.buckets[i] = NewBucket(c.Bucket)
 	}
 	return s
+}
+
+// zh: 根据subKey将不同连接分配到不同桶
+func (s *Server) Bucket(subKey string) *Bucket {
+	idx := cityhash.CityHash32([]byte(subKey), uint32(len(subKey))) % s.bucketIdx
+	return s.buckets[idx]
+}
+
+// zh: 随机心跳时间
+func (s *Server) RandServerHeartbeat() time.Duration {
+	return minServerHeartbeat + time.Duration(rand.Int63n(int64(maxServerHeartbeat-minServerHeartbeat)))
 }

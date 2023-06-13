@@ -1,3 +1,30 @@
+base:
+  host: "yim.comet"
+
+tcp:
+  bind:
+  - ":8080"
+  snd_buf: 4096
+  rcv_buf: 4096
+  keep_alive: false
+  reader: 32
+  read_buf: 1024
+  read_buf_size: 8192
+  writer: 32
+  write_buf: 1024
+  write_buf_size: 8192
+
+protocol:
+  timer: 32
+  timer_size: 2048
+  svr_proto: 10
+  cli_proto: 5
+  handshake_timeout: 8
+
+websocket:
+  bind:
+  - ":8081"
+
 bucket:
   size: 32
   channel: 1024

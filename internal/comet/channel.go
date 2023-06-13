@@ -2,6 +2,8 @@ package comet
 
 import (
 	"errors"
+	"github.com/xyhubl/yim/pkg/bufio"
+	"sync"
 
 	"github.com/xyhubl/yim/api/protocol"
 )
@@ -18,6 +20,9 @@ type Channel struct {
 	// zh: 该连接所属的房间
 	Room *Room
 
+	Writer bufio.Writer
+	Reader bufio.Reader
+
 	Pre  *Channel
 	Next *Channel
 
@@ -25,6 +30,7 @@ type Channel struct {
 	signal   chan *protocol.Proto
 
 	watchOps map[int32]struct{}
+	mutex    sync.RWMutex
 }
 
 func NewChannel(cli, svr int) *Channel {
@@ -36,6 +42,15 @@ func NewChannel(cli, svr int) *Channel {
 	return c
 }
 
+// zh: 监听要发送的
+func (c *Channel) Watch(accepts ...int32) {
+	c.mutex.Lock()
+	for _, op := range accepts {
+		c.watchOps[op] = struct{}{}
+	}
+	c.mutex.Unlock()
+}
+
 func (c *Channel) Push(p *protocol.Proto) (err error) {
 	select {
 	case c.signal <- p:
@@ -45,6 +60,10 @@ func (c *Channel) Push(p *protocol.Proto) (err error) {
 		err = ErrSignalFullMsgDropped
 	}
 	return
+}
+
+func (c *Channel) Signal() {
+	c.signal <- protocol.ProtoReady
 }
 
 func (c *Channel) Ready() *protocol.Proto {
