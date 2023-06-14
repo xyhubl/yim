@@ -52,6 +52,15 @@ func (c *Channel) Watch(accepts ...int32) {
 	c.mutex.Unlock()
 }
 
+// zh: 取消监听
+func (c *Channel) UnWatch(accepts ...int32) {
+	c.mutex.Lock()
+	for _, op := range accepts {
+		delete(c.watchOps, op)
+	}
+	c.mutex.Unlock()
+}
+
 func (c *Channel) Push(p *protocol.Proto) (err error) {
 	select {
 	case c.signal <- p:

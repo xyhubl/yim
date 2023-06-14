@@ -1,6 +1,11 @@
 package comet
 
 import (
+	"github.com/xyhubl/yim/api/logic"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/keepalive"
 	"math/rand"
 	"time"
 
@@ -18,14 +23,16 @@ type Server struct {
 	bucketIdx uint32
 	serverID  string
 
-	round   *Round
-	buckets []*Bucket
+	round     *Round
+	buckets   []*Bucket
+	rpcClient logic.LogicClient
 }
 
 func NewServer(c *conf.Config) *Server {
 	s := &Server{
-		c:     c,
-		round: NewRound(c),
+		c:         c,
+		round:     NewRound(c),
+		rpcClient: newLogicClient(c.RpcClient),
 	}
 	s.buckets = make([]*Bucket, c.Bucket.Size)
 	s.bucketIdx = uint32(c.Bucket.Size)
@@ -45,4 +52,36 @@ func (s *Server) Bucket(subKey string) *Bucket {
 // zh: 随机心跳时间
 func (s *Server) RandServerHeartbeat() time.Duration {
 	return minServerHeartbeat + time.Duration(rand.Int63n(int64(maxServerHeartbeat-minServerHeartbeat)))
+}
+
+const (
+	grpcInitialWindowSize     = 1 << 24
+	grpcInitialConnWindowSize = 1 << 24
+	grpcMaxSendMsgSize        = 1 << 24
+	grpcMaxCallMsgSize        = 1 << 24
+	grpcKeepAliveTime         = time.Second * 10
+	grpcKeepAliveTimeout      = time.Second * 3
+	grpcBackoffMaxDelay       = time.Second * 3
+)
+
+// zh: logic rpc client
+func newLogicClient(c *conf.RpcClient) logic.LogicClient {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(c.Dial)*time.Second)
+	defer cancel()
+	conn, err := grpc.DialContext(ctx, c.Addr, []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithInitialWindowSize(grpcInitialWindowSize),
+		grpc.WithInitialConnWindowSize(grpcInitialConnWindowSize),
+		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(grpcMaxCallMsgSize), grpc.MaxCallSendMsgSize(grpcMaxSendMsgSize)),
+		grpc.WithKeepaliveParams(keepalive.ClientParameters{
+			Time:                grpcKeepAliveTime,
+			Timeout:             grpcKeepAliveTimeout,
+			PermitWithoutStream: true,
+		}),
+		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy": "round_robin"}`),
+	}...)
+	if err != nil {
+		panic(err)
+	}
+	return logic.NewLogicClient(conn)
 }

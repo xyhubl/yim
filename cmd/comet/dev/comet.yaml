@@ -31,3 +31,8 @@ bucket:
   room: 1024
   routine_amount: 32
   routine_size: 1024
+
+rpc_client:
+  addr: "127.0.0.1:9090"
+  dial: 1
+  timeout: 3

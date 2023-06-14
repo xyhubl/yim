@@ -8,6 +8,7 @@ type Config struct {
 	Protocol  *Protocol   `mapstructure:"protocol"`
 	Bucket    *Bucket     `mapstructure:"bucket"`
 	Websocket *Websocket  `mapstructure:"websocket"`
+	RpcClient *RpcClient  `mapstructure:"rpc_client"`
 }
 
 type TCP struct {
@@ -41,4 +42,10 @@ type Bucket struct {
 
 type Websocket struct {
 	Bind []string `mapstructure:"bind"`
+}
+
+type RpcClient struct {
+	Addr    string `mapstructure:"addr"`
+	Dial    int    `mapstructure:"dial"`
+	Timeout int    `mapstructure:"timeout"`
 }

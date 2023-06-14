@@ -149,10 +149,9 @@ func (s *Server) ServeWebsocket(conn net.Conn, rp, wp *bytes.Pool, tr *xtime.Tim
 		}
 		return
 	}
-
 	step = 4
-	// todo 监听发送的事件
 	// zh: 持续监听事件
+	go s.dispatchWebsocket(ws, wp, wb, ch)
 	serverHeartbeat := s.RandServerHeartbeat()
 	for {
 		if p, err = ch.CliProto.Set(); err != nil {
@@ -167,30 +166,38 @@ func (s *Server) ServeWebsocket(conn net.Conn, rp, wp *bytes.Pool, tr *xtime.Tim
 			p.Op = protocol.OpHeartbeatReply
 			p.Body = nil
 			if now := time.Now(); now.Sub(lastHb) > serverHeartbeat {
-				// todo 发送心跳
+				if err1 := s.Heartbeat(ctx, ch.Mid, ch.Key); err1 == nil {
+					lastHb = now
+				}
 			}
 			step++
 		} else {
-			// todo
+			// zh: 如果不是心跳事件
+			if err = s.Operate(ctx, p, ch, b); err != nil {
+				break
+			}
 		}
+		// zh: 写计数+1
 		ch.CliProto.SetAdv()
 		ch.Signal()
-	}
-	// zh: 意外的关闭
-	if err != nil && err != io.EOF && err != websocket.ErrMessageClose && !strings.Contains(err.Error(), "closed") {
-		log.Printf("[ERROR]: The closing of the accident key: %s, err: %v ", ch.Key, err)
 	}
 	b.Del(ch)
 	tr.Del(trd)
 	ws.Close()
 	ch.Close()
 	rp.Put(rb)
-	// todo 关闭连接
+	// zh: 意外的关闭
+	if err != nil && err != io.EOF && err != websocket.ErrMessageClose && !strings.Contains(err.Error(), "closed") {
+		log.Printf("[ERROR]: The closing of the accident key: %s, err: %v ", ch.Key, err)
+	}
+	// zh: 关闭连接
+	if err = s.Disconnect(ctx, ch.Mid, ch.Key); err != nil {
+		log.Printf("[ERROR]: Disconnect err mid: %d, key: %s, err: %v ", ch.Mid, ch.Key, err)
+	}
 }
 
 func (s *Server) authWebsocket(ctx context.Context, ws *websocket.Conn, p *protocol.Proto, cookie string) (mid int64, key, rid string,
-	accepts []int32, hb time.Duration, err error,
-) {
+	accepts []int32, hb time.Duration, err error) {
 	for {
 		if err = p.ReadWebsocket(ws); err != nil {
 			return
@@ -201,8 +208,9 @@ func (s *Server) authWebsocket(ctx context.Context, ws *websocket.Conn, p *proto
 			log.Printf("[ERROR] request not auth, op: %d", p.Op)
 		}
 	}
-	// todo 授权
-
+	if mid, key, rid, accepts, hb, err = s.Connect(ctx, p, cookie); err != nil {
+		return
+	}
 	p.Op = protocol.OpAuthReply
 	p.Body = nil
 	if err = p.WriteWebsocket(ws); err != nil {
@@ -210,4 +218,61 @@ func (s *Server) authWebsocket(ctx context.Context, ws *websocket.Conn, p *proto
 	}
 	err = ws.Flush()
 	return
+}
+
+func (s *Server) dispatchWebsocket(ws *websocket.Conn, wp *bytes.Pool, wb *bytes.Buffer, ch *Channel) {
+	var (
+		err    error
+		finish bool
+		online int32
+	)
+	for {
+		// zh: 阻塞直到有消息进来
+		var p = ch.Ready()
+		switch p {
+		case protocol.ProtoFinish:
+			finish = true
+			goto failed
+		// -------------------------------------------------------------------------------------------------------------
+		case protocol.ProtoReady:
+			for {
+				// zh: 如过获取不到 说明写完了 或者 一般是队列满了拿不到,存在刷消息的嫌疑,直接丢弃
+				if p, err = ch.CliProto.Get(); err != nil {
+					break
+				}
+				if p.Op == protocol.OpHeartbeatReply {
+					if ch.Room != nil {
+						online = ch.Room.OnlineNum()
+					}
+					// zh: 发送心跳回应
+					if err = p.WriteWebsocketHeart(ws, online); err != nil {
+						goto failed
+					}
+				} else {
+					if err = p.WriteWebsocket(ws); err != nil {
+						goto failed
+					}
+				}
+				// zh: 避免内存泄漏
+				p.Body = nil
+				ch.CliProto.GetAdv()
+			}
+		// -------------------------------------------------------------------------------------------------------------
+		default:
+			if err = p.WriteWebsocket(ws); err != nil {
+				goto failed
+			}
+		}
+		// zh: hungry flush
+		if err = ws.Flush(); err != nil {
+			break
+		}
+	}
+failed:
+	ws.Close()
+	wp.Put(wb)
+	// zh: 丢弃还未读的消息, 不然reader将会堵塞
+	for !finish {
+		finish = (ch.Ready() == protocol.ProtoFinish)
+	}
 }
