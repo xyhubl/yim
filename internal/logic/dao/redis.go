@@ -36,7 +36,7 @@ func (b *Base) HSet(ctx context.Context, key string, values ...interface{}) erro
 	return b.redis.HSet(ctx, key, values).Err()
 }
 
-func (b *Base) HSetExpire(ctx context.Context, key string, expire time.Duration, values ...interface{}) error {
+func (b *Base) HSetExpire(ctx context.Context, expire time.Duration, key string, values ...interface{}) error {
 	if err := b.HSet(ctx, key, values); err != nil {
 		return err
 	}

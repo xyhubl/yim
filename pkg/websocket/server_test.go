@@ -100,8 +100,8 @@ func TestServerV1(t *testing.T) {
 		t.FailNow()
 	}
 	go func() {
-		r := bufio.NewReaderSize(conn, 4096*2)
-		w := bufio.NewWriterSize(conn, 4096*2)
+		r := bufio.NewReaderSize(conn, 32)
+		w := bufio.NewWriterSize(conn, 32)
 
 		req, err = ReadRequest(r)
 		if err != nil {
@@ -174,15 +174,11 @@ func TestClient(t *testing.T) {
 	w := bufio.NewWriterSize(conn, 32)
 
 	c := newConn(conn, r, w)
-	for {
-		if err = c.WriteMessage(PingMessage, []byte("pong")); err != nil {
-			t.Fatal(err)
-		}
-		if err = c.Flush(); err != nil {
-			t.Fatal(err)
-		}
+	if err = c.WriteMessage(TextMessage, []byte("00000000000000000000000000000099")); err != nil {
+		t.Fatal(err)
 	}
-	c.Close()
+	defer c.Close()
+	time.Sleep(100000 * time.Minute)
 }
 
 func createWebSocketUpgradeRequest(u *url2.URL, key string) string {

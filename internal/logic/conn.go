@@ -30,7 +30,7 @@ func (l *Logic) Connect(c context.Context, server, cookie string, token []byte) 
 		key = uuid.New().String()
 	}
 	if mid > 0 {
-		if err = l.DaoBase.HSetExpire(c, dao.KeyMidServer(mid), l.DaoBase.RedisExpire, server); err != nil {
+		if err = l.DaoBase.HSetExpire(c, l.DaoBase.RedisExpire, dao.KeyMidServer(mid), key, server); err != nil {
 			return
 		}
 		if err = l.DaoBase.SetExpire(c, dao.KeyKeyServer(key), server, l.DaoBase.RedisExpire); err != nil {
