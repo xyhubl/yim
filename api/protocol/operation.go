@@ -7,6 +7,8 @@ const (
 	OpAuth      = int32(7)
 	OpAuthReply = int32(8)
 
+	OpRaw = int32(9)
+
 	OpProtoReady  = int32(10)
 	OpProtoFinish = int32(11)
 

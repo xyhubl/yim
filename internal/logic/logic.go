@@ -3,17 +3,20 @@ package logic
 import (
 	"github.com/xyhubl/yim/internal/logic/conf"
 	"github.com/xyhubl/yim/internal/logic/dao"
+	"github.com/xyhubl/yim/pkg/log"
 )
 
+var Login *Logic
+
 type Logic struct {
-	c       *conf.Config
-	DaoBase *dao.Base
+	C *conf.Config
 }
 
 func New(c *conf.Config) (l *Logic) {
+	dao.New(c)
+	log.InitLog("info")
 	l = &Logic{
-		c:       c,
-		DaoBase: dao.New(c),
+		C: c,
 	}
 	return l
 }

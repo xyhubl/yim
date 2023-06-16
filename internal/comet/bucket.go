@@ -3,7 +3,6 @@ package comet
 import (
 	"sync"
 
-	pb "github.com/xyhubl/yim/api/comet"
 	"github.com/xyhubl/yim/internal/comet/conf"
 )
 
@@ -15,8 +14,6 @@ type Bucket struct {
 	rooms map[string]*Room
 
 	ipCnts map[string]int32
-
-	routines []chan *pb.BroadcastRoomReq
 }
 
 func NewBucket(c *conf.Bucket) (b *Bucket) {
@@ -28,12 +25,6 @@ func NewBucket(c *conf.Bucket) (b *Bucket) {
 
 	b.c = c
 
-	b.routines = make([]chan *pb.BroadcastRoomReq, c.RoutineAmount)
-	for i := uint64(0); i < c.RoutineAmount; i++ {
-		ch := make(chan *pb.BroadcastRoomReq, c.RoutineSize)
-		b.routines[i] = ch
-		go b.roomProc(ch)
-	}
 	return
 }
 
@@ -137,13 +128,4 @@ func (b *Bucket) Rooms() (res map[string]struct{}) {
 	}
 	b.cLock.RUnlock()
 	return
-}
-
-func (b *Bucket) roomProc(c chan *pb.BroadcastRoomReq) {
-	for {
-		arg := <-c
-		if room := b.Room(arg.RoomID); room != nil {
-			room.Push(arg.Proto)
-		}
-	}
 }

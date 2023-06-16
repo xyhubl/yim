@@ -72,6 +72,16 @@ func (c *Channel) Push(p *protocol.Proto) (err error) {
 	return
 }
 
+func (c *Channel) NeedPush(op int32) bool {
+	c.mutex.RLock()
+	if _, ok := c.watchOps[op]; ok {
+		c.mutex.RUnlock()
+		return true
+	}
+	c.mutex.RUnlock()
+	return false
+}
+
 func (c *Channel) Signal() {
 	c.signal <- protocol.ProtoReady
 }

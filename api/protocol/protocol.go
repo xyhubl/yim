@@ -2,6 +2,7 @@ package protocol
 
 import (
 	"errors"
+	"github.com/xyhubl/yim/pkg/bytes"
 
 	"github.com/xyhubl/yim/pkg/encoding/binary"
 	"github.com/xyhubl/yim/pkg/websocket"
@@ -112,4 +113,19 @@ func (p *Proto) WriteWebsocketHeart(ws *websocket.Conn, online int32) (err error
 	// proto body
 	binary.BigEndian.PutInt32(buf[_heartOffset:], online)
 	return
+}
+
+func (p *Proto) WriteTo(b *bytes.Writer) {
+	var (
+		packLen = _rawHeaderSize + int32(len(p.Body))
+		buf     = b.Peek(_rawHeaderSize)
+	)
+	binary.BigEndian.PutInt32(buf[_packOffset:], packLen)
+	binary.BigEndian.PutInt16(buf[_headerOffset:], int16(_rawHeaderSize))
+	binary.BigEndian.PutInt16(buf[_verOffset:], int16(p.Ver))
+	binary.BigEndian.PutInt32(buf[_opOffset:], p.Op)
+	binary.BigEndian.PutInt32(buf[_seqOffset:], p.Seq)
+	if p.Body != nil {
+		b.Write(p.Body)
+	}
 }

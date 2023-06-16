@@ -141,6 +141,7 @@ func (c *Conn) ReadMessage() (op int, payload []byte, err error) {
 		partPayload []byte
 	)
 	for {
+		// read frame
 		if fin, op, partPayload, err = c.readFrame(); err != nil {
 			return
 		}
@@ -149,20 +150,25 @@ func (c *Conn) ReadMessage() (op int, payload []byte, err error) {
 			if fin && len(payload) == 0 {
 				return op, partPayload, nil
 			}
+			// continuation frame
 			payload = append(payload, partPayload...)
 			if op != continuationFrame {
 				finOp = op
 			}
+			// final frame
 			if fin {
 				op = finOp
 				return
 			}
 		case PingMessage:
+			// handler ping
 			if err = c.WriteMessage(PongMessage, partPayload); err != nil {
 				return
 			}
 		case PongMessage:
+			// handler pong
 		case CloseMessage:
+			// handler close
 			err = ErrMessageClose
 			return
 		default:

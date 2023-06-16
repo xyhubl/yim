@@ -1,0 +1,32 @@
+base:
+  debug_module: "debug"
+  host: "yim.logic"
+
+redis:
+  network: "tcp"
+  addr: "127.0.0.1:55002"
+  user_name: "root"
+  password: "redispw"
+  idle: 1024
+  dialTimeout: 1
+  readTimeout: 1
+  writeTimeout: 1
+  idleTimeout: 120
+  expire: 1800
+
+rpc_server:
+  network: "tcp"
+  addr: ":9091"
+
+http_server:
+  network: "tcp"
+  addr: ":8080"
+  readTimeout: 1
+  writeTimeout: 1
+
+kafka:
+  topic: "yim-push-topic"
+  brokers:
+  - "127.0.0.1:9092"
+
+

@@ -93,7 +93,7 @@ func (r *Room) Close() {
 	for ch := r.next; ch != nil; ch = ch.Next {
 		ch.Close()
 	}
-	r.rLock.Unlock()
+	r.rLock.RUnlock()
 }
 
 // zh: 所有房间在线数量

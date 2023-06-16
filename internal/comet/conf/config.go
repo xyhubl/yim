@@ -3,12 +3,13 @@ package conf
 import "github.com/xyhubl/yim/pkg/vipers"
 
 type Config struct {
-	Base      vipers.Base `mapstructure:"base"`
+	Base      vipers.Base `mapstructure:"base" yaml:"base" json:"base"`
 	TCP       *TCP        `mapstructure:"tcp"`
 	Protocol  *Protocol   `mapstructure:"protocol"`
 	Bucket    *Bucket     `mapstructure:"bucket"`
 	Websocket *Websocket  `mapstructure:"websocket"`
 	RpcClient *RpcClient  `mapstructure:"rpc_client"`
+	RpcServer *RpcServer  `mapstructure:"rpc_server"`
 }
 
 type TCP struct {
@@ -48,4 +49,14 @@ type RpcClient struct {
 	Addr    string `mapstructure:"addr"`
 	Dial    int    `mapstructure:"dial"`
 	Timeout int    `mapstructure:"timeout"`
+}
+
+type RpcServer struct {
+	Network           string `yaml:"network"`
+	Addr              string `yaml:"addr"`
+	Timeout           int    `yaml:"timeout"`
+	IdleTimeout       int    `yaml:"idle_timeout"`
+	ForceCloseWait    int    `yaml:"force_close_wait"`
+	KeepAliveInterval int    `yaml:"keep_alive_interval"`
+	KeepAliveTimeout  int    `yaml:"keep_alive_timeout"`
 }

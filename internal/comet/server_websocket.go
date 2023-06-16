@@ -1,6 +1,7 @@
 package comet
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"math"
@@ -137,6 +138,7 @@ func (s *Server) ServeWebsocket(conn net.Conn, rp, wp *bytes.Pool, tr *xtime.Tim
 			b = s.Bucket(ch.Key)
 			// zh: 将连接放入到room
 			err = b.Put(rid, ch)
+			fmt.Println(ch.Key)
 		}
 	}
 	if err != nil {
@@ -227,6 +229,7 @@ func (s *Server) dispatchWebsocket(ws *websocket.Conn, wp *bytes.Pool, wb *bytes
 		online int32
 	)
 	for {
+		fmt.Println("---")
 		// zh: 阻塞直到有消息进来
 		var p = ch.Ready()
 		switch p {
@@ -236,10 +239,11 @@ func (s *Server) dispatchWebsocket(ws *websocket.Conn, wp *bytes.Pool, wb *bytes
 		// -------------------------------------------------------------------------------------------------------------
 		case protocol.ProtoReady:
 			for {
-				// zh: 如过获取不到 说明写完了 或者 一般是队列满了拿不到,存在刷消息的嫌疑,直接丢弃
+				// zh: 如果获取不到 说明写完了 或者 一般是队列满了拿不到,存在刷消息的嫌疑,直接丢弃
 				if p, err = ch.CliProto.Get(); err != nil {
 					break
 				}
+				// zh: 如果是心跳
 				if p.Op == protocol.OpHeartbeatReply {
 					if ch.Room != nil {
 						online = ch.Room.OnlineNum()

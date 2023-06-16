@@ -6,7 +6,20 @@ option go_package = "github.com/xyhubl/yim/api/comet;comet";
 
 import "protocol/protocol.proto";
 
+message PushMsgReq {
+    repeated string Keys = 1;
+    int32 ProtoOp = 2;
+    yim.protocol.Proto proto = 3;
+}
+
+message PushMsgReply {}
+
 message BroadcastRoomReq {
     string roomID = 1;
     yim.protocol.Proto  proto = 2;
+}
+
+
+service Comet {
+    rpc PushMsg(PushMsgReq) returns (PushMsgReply);
 }

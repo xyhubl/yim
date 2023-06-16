@@ -1,11 +1,11 @@
 package comet
 
 import (
+	"fmt"
 	"github.com/xyhubl/yim/api/logic"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/keepalive"
 	"math/rand"
 	"time"
 
@@ -46,6 +46,7 @@ func NewServer(c *conf.Config) *Server {
 // zh: 根据subKey将不同连接分配到不同桶
 func (s *Server) Bucket(subKey string) *Bucket {
 	idx := cityhash.CityHash32([]byte(subKey), uint32(len(subKey))) % s.bucketIdx
+	fmt.Println(idx)
 	return s.buckets[idx]
 }
 
@@ -59,9 +60,6 @@ const (
 	grpcInitialConnWindowSize = 1 << 24
 	grpcMaxSendMsgSize        = 1 << 24
 	grpcMaxCallMsgSize        = 1 << 24
-	grpcKeepAliveTime         = time.Second * 10
-	grpcKeepAliveTimeout      = time.Second * 3
-	grpcBackoffMaxDelay       = time.Second * 3
 )
 
 // zh: logic rpc client
@@ -73,11 +71,6 @@ func newLogicClient(c *conf.RpcClient) logic.LogicClient {
 		grpc.WithInitialWindowSize(grpcInitialWindowSize),
 		grpc.WithInitialConnWindowSize(grpcInitialConnWindowSize),
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(grpcMaxCallMsgSize), grpc.MaxCallSendMsgSize(grpcMaxSendMsgSize)),
-		grpc.WithKeepaliveParams(keepalive.ClientParameters{
-			Time:                grpcKeepAliveTime,
-			Timeout:             grpcKeepAliveTimeout,
-			PermitWithoutStream: true,
-		}),
 		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy": "round_robin"}`),
 	}...)
 	if err != nil {
