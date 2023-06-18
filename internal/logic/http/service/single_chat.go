@@ -1,9 +1,9 @@
 package service
 
 import (
-	pb "github.com/xyhubl/yim/api/logic"
 	"github.com/xyhubl/yim/internal/logic/dao"
 	"github.com/xyhubl/yim/internal/logic/http/view_model"
+	"go.uber.org/zap"
 	"golang.org/x/net/context"
 )
 
@@ -25,14 +25,28 @@ func PushKeys(ctx context.Context, req *view_model.PushKeysReq) error {
 	}
 	// 发送消息
 	for server, v := range pushKeys {
-		msg := pb.PushMsg{
-			Type:      pb.Type_PUSH,
-			Operation: req.Op,
-			Server:    server,
-			Keys:      v,
-			Msg:       []byte(req.Msg),
+		if err = dao.PushMsg(ctx, req.Op, server, v, []byte(req.Msg)); err != nil {
+			return err
 		}
-		if err = dao.PushMsg(ctx, req.Op, server, v, msg.Msg); err != nil {
+	}
+	return nil
+}
+
+func PushMids(ctx context.Context, req *view_model.PushMidsReq) error {
+	keysAndServerMap := make(map[string][]string)
+	for _, v := range req.Mids {
+		resMap, err := dao.BaseDao.HGetAll(ctx, dao.KeyMidServer(v))
+		if err != nil {
+			zap.L().Error("PushMids HGetAll err: " + err.Error())
+			return err
+		}
+		for key, server := range resMap {
+			keysAndServerMap[server] = append(keysAndServerMap[server], key)
+		}
+	}
+	for server, keys := range keysAndServerMap {
+		if err := dao.PushMsg(ctx, req.Op, server, keys, []byte(req.Msg)); err != nil {
+			zap.L().Error("PushMids PushMsg err: " + err.Error())
 			return err
 		}
 	}

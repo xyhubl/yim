@@ -2,6 +2,7 @@ package logic
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/xyhubl/yim/internal/logic/dao"
 	"go.uber.org/zap"
@@ -43,4 +44,17 @@ func (l *Logic) Connect(c context.Context, server, cookie string, token []byte) 
 		}
 	}
 	return
+}
+
+func (l *Logic) DisConnect(ctx context.Context, mid int64, key, server string) error {
+	var err error
+	if err = dao.BaseDao.HDel(ctx, dao.KeyMidServer(mid), key); err != nil {
+		zap.L().Error("DisConnect HDel err: " + err.Error() + fmt.Sprintf("mid: %d, key: %s, server: %s", mid, key, server))
+		return err
+	}
+	if err = dao.BaseDao.Del(ctx, dao.KeyKeyServer(key)); err != nil {
+		zap.L().Error("DisConnect Del err: " + err.Error() + fmt.Sprintf("mid: %d, key: %s, server: %s", mid, key, server))
+		return err
+	}
+	return err
 }

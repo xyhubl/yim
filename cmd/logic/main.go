@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/xyhubl/yim/internal/logic"
 	"github.com/xyhubl/yim/internal/logic/conf"
 	"github.com/xyhubl/yim/internal/logic/grpc"
@@ -16,7 +15,6 @@ func main() {
 	// go run main.go -config ./dev/logic.yaml
 	config := &conf.Config{}
 	vipers.InitViperConf(config, vipers.WithOpenWatching(true), vipers.WithConfigType("yaml"))
-	fmt.Println(config.Base.Host, config.Base.DebugModule)
 	logic.Login = logic.New(config)
 	http.Server(config)
 	grpc.NewRpcSrv(config.RPCServer, logic.Login)

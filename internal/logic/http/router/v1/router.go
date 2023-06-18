@@ -14,6 +14,7 @@ func InitRouter(middlewares ...gin.HandlerFunc) *gin.Engine {
 	{
 		push := v1.Group("/push")
 		push.POST("/keys", controller.PushKeys)
+		push.POST("/mids", controller.PushMids)
 	}
 	return router
 }

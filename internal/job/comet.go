@@ -43,7 +43,7 @@ type Comet struct {
 	serverID string
 	client   comet.CometClient
 
-	pushChanNum uint64                   // // 单聊消息数量
+	pushChanNum uint64                   // 单聊消息数量
 	pushChan    []chan *comet.PushMsgReq // 单聊消息
 
 	routineSize uint64

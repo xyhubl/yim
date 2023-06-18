@@ -5,3 +5,9 @@ type PushKeysReq struct {
 	Keys []string `json:"keys" validate:"required"`
 	Msg  string   `json:"msg" validate:"required"`
 }
+
+type PushMidsReq struct {
+	Op   int32   `json:"op" validate:"required"`
+	Mids []int64 `json:"mids" validate:"required"`
+	Msg  string  `json:"msg" validate:"required"`
+}

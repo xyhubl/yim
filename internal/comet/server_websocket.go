@@ -229,7 +229,6 @@ func (s *Server) dispatchWebsocket(ws *websocket.Conn, wp *bytes.Pool, wb *bytes
 		online int32
 	)
 	for {
-		fmt.Println("---")
 		// zh: 阻塞直到有消息进来
 		var p = ch.Ready()
 		switch p {

@@ -3,7 +3,6 @@ package grpc
 import (
 	"context"
 	"errors"
-	"fmt"
 	pb "github.com/xyhubl/yim/api/comet"
 	"github.com/xyhubl/yim/internal/comet"
 	"github.com/xyhubl/yim/internal/comet/conf"
@@ -36,7 +35,6 @@ type server struct {
 }
 
 func (s *server) PushMsg(ctx context.Context, req *pb.PushMsgReq) (reply *pb.PushMsgReply, err error) {
-	fmt.Printf("%+v \n", req.Keys)
 	if len(req.Keys) == 0 || req.Proto == nil {
 		return nil, ErrPushMsgArg
 	}

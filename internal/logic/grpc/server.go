@@ -44,7 +44,8 @@ func (s *server) Connect(ctx context.Context, req *pb.ConnectReq) (*pb.ConnectRe
 }
 
 func (s *server) Disconnect(ctx context.Context, req *pb.DisconnectReq) (*pb.DisconnectReply, error) {
-	return nil, nil
+	err := s.srv.DisConnect(ctx, req.Mid, req.Key, req.Server)
+	return &pb.DisconnectReply{}, err
 }
 
 func (s *server) Heartbeat(ctx context.Context, req *pb.HeartbeatReq) (*pb.HeartbeatReply, error) {

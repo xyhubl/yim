@@ -1,7 +1,6 @@
 package comet
 
 import (
-	"fmt"
 	"github.com/xyhubl/yim/api/logic"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -46,7 +45,6 @@ func NewServer(c *conf.Config) *Server {
 // zh: 根据subKey将不同连接分配到不同桶
 func (s *Server) Bucket(subKey string) *Bucket {
 	idx := cityhash.CityHash32([]byte(subKey), uint32(len(subKey))) % s.bucketIdx
-	fmt.Println(idx)
 	return s.buckets[idx]
 }
 

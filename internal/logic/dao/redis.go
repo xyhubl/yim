@@ -41,6 +41,18 @@ func (b *Base) HSet(ctx context.Context, key string, values ...interface{}) erro
 	return BaseDao.Redis.HSet(ctx, key, values).Err()
 }
 
+func (b *Base) HGetAll(ctx context.Context, key string) (map[string]string, error) {
+	return b.Redis.HGetAll(ctx, key).Result()
+}
+
+func (b *Base) HDel(ctx context.Context, key, field string) error {
+	return b.Redis.HDel(ctx, key, field).Err()
+}
+
+func (b *Base) Del(ctx context.Context, key string) error {
+	return b.Redis.Del(ctx, key).Err()
+}
+
 func (b *Base) HSetExpire(ctx context.Context, expire time.Duration, key string, values ...interface{}) error {
 	if err := b.HSet(ctx, key, values...); err != nil {
 		return err
