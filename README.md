@@ -30,5 +30,4 @@ zookeeper kafka redis golang环境（建议>=1.17）
 4. 服务发现注册
 5. 等等..
 
-感谢: https://github.com/Terry-Mao/goim带来的灵感，学到很多。
 
