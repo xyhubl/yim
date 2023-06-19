@@ -29,7 +29,7 @@ func ReadRequest(r *bufio.Reader) (req *Request, err error) {
 		return
 	}
 	if req.Method, req.RequestURI, req.Proto, ok = parseRequestLine(string(b)); !ok {
-		return nil, fmt.Errorf("malformed HTTP request %s", b)
+		return req, fmt.Errorf("malformed HTTP request %s", b)
 	}
 	if req.Header, err = req.readMIMEHeader(); err != nil {
 		return
