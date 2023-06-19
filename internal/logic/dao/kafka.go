@@ -29,3 +29,25 @@ func PushMsg(ctx context.Context, op int32, server string, keys []string, msg []
 	}
 	return nil
 }
+
+func BroadcastRoomMsg(c context.Context, op int32, room string, msg []byte) error {
+	pushMsg := &pb.PushMsg{
+		Type:      pb.Type_ROOM,
+		Operation: op,
+		Room:      room,
+		Msg:       msg,
+	}
+	b, err := proto.Marshal(pushMsg)
+	if err != nil {
+		return err
+	}
+	m := &sarama.ProducerMessage{
+		Key:   sarama.StringEncoder(room),
+		Topic: BaseDao.c.Kafka.Topic,
+		Value: sarama.ByteEncoder(b),
+	}
+	if _, _, err = BaseDao.KafkaPub.SendMessage(m); err != nil {
+		return err
+	}
+	return nil
+}

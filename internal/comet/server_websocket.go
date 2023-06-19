@@ -1,7 +1,6 @@
 package comet
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"math"
@@ -138,7 +137,6 @@ func (s *Server) ServeWebsocket(conn net.Conn, rp, wp *bytes.Pool, tr *xtime.Tim
 			b = s.Bucket(ch.Key)
 			// zh: 将连接放入到room
 			err = b.Put(rid, ch)
-			fmt.Println(ch.Key)
 		}
 	}
 	if err != nil {
@@ -168,8 +166,11 @@ func (s *Server) ServeWebsocket(conn net.Conn, rp, wp *bytes.Pool, tr *xtime.Tim
 			p.Op = protocol.OpHeartbeatReply
 			p.Body = nil
 			if now := time.Now(); now.Sub(lastHb) > serverHeartbeat {
-				if err1 := s.Heartbeat(ctx, ch.Mid, ch.Key); err1 == nil {
+				if errHeartBeat := s.Heartbeat(ctx, ch.Mid, ch.Key); errHeartBeat == nil {
 					lastHb = now
+				} else {
+					// zh: 错误的话,不用做处理,定时器会自动执行,释放内存
+					log.Printf("[ERROR] ServeWebsocket Heartbeat err" + errHeartBeat.Error())
 				}
 			}
 			step++

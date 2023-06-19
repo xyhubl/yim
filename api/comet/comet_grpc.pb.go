@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CometClient interface {
 	PushMsg(ctx context.Context, in *PushMsgReq, opts ...grpc.CallOption) (*PushMsgReply, error)
+	BroadcastRoom(ctx context.Context, in *BroadcastRoomReq, opts ...grpc.CallOption) (*BroadcastRoomReply, error)
 }
 
 type cometClient struct {
@@ -42,11 +43,21 @@ func (c *cometClient) PushMsg(ctx context.Context, in *PushMsgReq, opts ...grpc.
 	return out, nil
 }
 
+func (c *cometClient) BroadcastRoom(ctx context.Context, in *BroadcastRoomReq, opts ...grpc.CallOption) (*BroadcastRoomReply, error) {
+	out := new(BroadcastRoomReply)
+	err := c.cc.Invoke(ctx, "/yim.comet.Comet/BroadcastRoom", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CometServer is the server API for Comet service.
 // All implementations must embed UnimplementedCometServer
 // for forward compatibility
 type CometServer interface {
 	PushMsg(context.Context, *PushMsgReq) (*PushMsgReply, error)
+	BroadcastRoom(context.Context, *BroadcastRoomReq) (*BroadcastRoomReply, error)
 	mustEmbedUnimplementedCometServer()
 }
 
@@ -56,6 +67,9 @@ type UnimplementedCometServer struct {
 
 func (UnimplementedCometServer) PushMsg(context.Context, *PushMsgReq) (*PushMsgReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PushMsg not implemented")
+}
+func (UnimplementedCometServer) BroadcastRoom(context.Context, *BroadcastRoomReq) (*BroadcastRoomReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BroadcastRoom not implemented")
 }
 func (UnimplementedCometServer) mustEmbedUnimplementedCometServer() {}
 
@@ -88,6 +102,24 @@ func _Comet_PushMsg_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Comet_BroadcastRoom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BroadcastRoomReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CometServer).BroadcastRoom(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/yim.comet.Comet/BroadcastRoom",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CometServer).BroadcastRoom(ctx, req.(*BroadcastRoomReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Comet_ServiceDesc is the grpc.ServiceDesc for Comet service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +130,10 @@ var Comet_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PushMsg",
 			Handler:    _Comet_PushMsg_Handler,
+		},
+		{
+			MethodName: "BroadcastRoom",
+			Handler:    _Comet_BroadcastRoom_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

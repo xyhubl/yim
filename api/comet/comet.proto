@@ -11,15 +11,15 @@ message PushMsgReq {
     int32 ProtoOp = 2;
     yim.protocol.Proto proto = 3;
 }
-
 message PushMsgReply {}
 
 message BroadcastRoomReq {
     string roomID = 1;
     yim.protocol.Proto  proto = 2;
 }
-
+message BroadcastRoomReply {}
 
 service Comet {
     rpc PushMsg(PushMsgReq) returns (PushMsgReply);
+    rpc BroadcastRoom(BroadcastRoomReq) returns (BroadcastRoomReply);
 }

@@ -37,6 +37,10 @@ func (b *Base) SetExpire(ctx context.Context, key string, value interface{}, exp
 	return BaseDao.Redis.Set(ctx, key, value, expiration).Err()
 }
 
+func (b *Base) SetKeyExpire(ctx context.Context, key string, expiration time.Duration) error {
+	return BaseDao.Redis.Expire(ctx, key, expiration).Err()
+}
+
 func (b *Base) HSet(ctx context.Context, key string, values ...interface{}) error {
 	return BaseDao.Redis.HSet(ctx, key, values).Err()
 }

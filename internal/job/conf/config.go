@@ -7,6 +7,7 @@ type Config struct {
 	Kafka     *Kafka     `mapstructure:"kafka"`
 	Comet     *Comet     `mapstructure:"comet"`
 	RpcClient *RpcClient `mapstructure:"rpc_client"`
+	Room      *Room      `mapstructure:"room"`
 }
 
 type Kafka struct {
@@ -24,4 +25,10 @@ type RpcClient struct {
 	Addr    string `mapstructure:"addr"`
 	Dial    int    `mapstructure:"dial"`
 	Timeout int    `mapstructure:"timeout"`
+}
+
+type Room struct {
+	Batch  int `mapstructure:"batch"`
+	Signal int `mapstructure:"signal"` // 毫秒
+	Idle   int `mapstructure:"idle"`
 }
