@@ -16,9 +16,23 @@ logic路由层，目前实现单聊
 
 
 
+流程:
+
+客户端连接ws -> auth- > 建立连接
+
+logic发送消息 -> job分发 -> comet发送消息到客户端
+
+
+
 需要环境:
 
 zookeeper kafka redis golang环境（建议>=1.17）
+
+
+
+消息协议：
+
+![image-20230619110221398](/Users/xy/Library/Application Support/typora-user-images/image-20230619110221398.png)
 
 
 
@@ -29,5 +43,4 @@ zookeeper kafka redis golang环境（建议>=1.17）
 3. ack机制
 4. 服务发现注册
 5. 等等..
-
 
