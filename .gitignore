@@ -1,4 +1,7 @@
 *.gz
 .idea/
 .history/
+./cmd/dev/*
+./cmd/test/*
+./cmd/prod/*
 log
