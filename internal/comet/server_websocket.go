@@ -1,6 +1,7 @@
 package comet
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"math"
@@ -44,19 +45,19 @@ func acceptWebsocket(server *Server, lis *net.TCPListener) {
 	)
 	for {
 		if conn, err = lis.AcceptTCP(); err != nil {
-			log.Printf("[ERROR]: AcceptTCP err: %v", err)
+			log.Printf("[ERROR]: AcceptTCP err: %v \n", err)
 			return
 		}
 		if err = conn.SetKeepAlive(server.c.TCP.KeepAlive); err != nil {
-			log.Printf("[ERROR]: SetKeepAlive err: %v", err)
+			log.Printf("[ERROR]: SetKeepAlive err: %v \n", err)
 			return
 		}
 		if err = conn.SetReadBuffer(server.c.TCP.RcvBuf); err != nil {
-			log.Printf("[ERROR]: SetReadBuffer err: %v", err)
+			log.Printf("[ERROR]: SetReadBuffer err: %v \n", err)
 			return
 		}
 		if err = conn.SetWriteBuffer(server.c.TCP.SndBuf); err != nil {
-			log.Printf("[ERROR]: SetWriteBuffer err: %v", err)
+			log.Printf("[ERROR]: SetWriteBuffer err: %v \n", err)
 			return
 		}
 		go server.ServeWebsocket(conn, server.round.Reader(r), server.round.Writer(r), server.round.Timer(r))
@@ -82,7 +83,7 @@ func (s *Server) ServeWebsocket(conn net.Conn, rp, wp *bytes.Pool, tr *xtime.Tim
 	trd := tr.Add(time.Duration(s.c.Protocol.HandshakeTimeout)*time.Second, func() {
 		_ = conn.SetDeadline(time.Now().Add(time.Millisecond * 100))
 		_ = conn.Close()
-		log.Printf("[ERROR]: handshake timeout remoteIP: %s, step: %d", conn.RemoteAddr(), step)
+		log.Printf("[ERROR]: handshake timeout remoteIP: %s, step: %d \n", conn.RemoteAddr(), step)
 	})
 
 	// zh: 获取IP
@@ -99,7 +100,7 @@ func (s *Server) ServeWebsocket(conn net.Conn, rp, wp *bytes.Pool, tr *xtime.Tim
 		tr.Del(trd)
 		rp.Put(rb)
 		if err != io.EOF {
-			log.Printf("[ERROR]: websocket ReadRequest err: %v, step: %d", err, step)
+			log.Printf("[ERROR]: websocket ReadRequest err: %v, step: %d \n", err, step)
 		}
 		return
 	}
@@ -115,7 +116,7 @@ func (s *Server) ServeWebsocket(conn net.Conn, rp, wp *bytes.Pool, tr *xtime.Tim
 		rp.Put(rb)
 		wp.Put(wb)
 		if err != io.EOF {
-			log.Printf("[ERROR]: websocket Upgrade err: %v, step: %d", err, step)
+			fmt.Printf("[ERROR]: websocket Upgrade err: %v, step: %d \n", err, step)
 		}
 		return
 	}
@@ -145,7 +146,7 @@ func (s *Server) ServeWebsocket(conn net.Conn, rp, wp *bytes.Pool, tr *xtime.Tim
 		wp.Put(wb)
 		tr.Del(trd)
 		if err != io.EOF && err != websocket.ErrMessageClose {
-			log.Printf("[ERROR]: websocket authWebsocket err: %v, key: %s, remoteIP: %s, step: %d", err, ch.Key, conn.RemoteAddr().String(), step)
+			log.Println(fmt.Sprintf("[ERROR]: websocket authWebsocket err: %v, key: %s, remoteIP: %s, step: %d", err, ch.Key, conn.RemoteAddr().String(), step))
 		}
 		return
 	}
@@ -170,7 +171,7 @@ func (s *Server) ServeWebsocket(conn net.Conn, rp, wp *bytes.Pool, tr *xtime.Tim
 					lastHb = now
 				} else {
 					// zh: 错误的话,不用做处理,定时器会自动执行,释放内存
-					log.Printf("[ERROR] ServeWebsocket Heartbeat err" + errHeartBeat.Error())
+					log.Println("[ERROR] ServeWebsocket Heartbeat err" + errHeartBeat.Error())
 				}
 			}
 			step++
@@ -191,11 +192,11 @@ func (s *Server) ServeWebsocket(conn net.Conn, rp, wp *bytes.Pool, tr *xtime.Tim
 	rp.Put(rb)
 	// zh: 意外的关闭
 	if err != nil && err != io.EOF && err != websocket.ErrMessageClose && !strings.Contains(err.Error(), "closed") {
-		log.Printf("[ERROR]: The closing of the accident key: %s, err: %v ", ch.Key, err)
+		log.Println(fmt.Sprintf("[ERROR]: The closing of the accident key: %s, err: %v ", ch.Key, err))
 	}
 	// zh: 关闭连接
 	if err = s.Disconnect(ctx, ch.Mid, ch.Key); err != nil {
-		log.Printf("[ERROR]: Disconnect err mid: %d, key: %s, err: %v ", ch.Mid, ch.Key, err)
+		log.Println(fmt.Sprintf("[ERROR]: Disconnect err mid: %d, key: %s, err: %v ", ch.Mid, ch.Key, err))
 	}
 }
 
@@ -208,7 +209,7 @@ func (s *Server) authWebsocket(ctx context.Context, ws *websocket.Conn, p *proto
 		if p.Op == protocol.OpAuth {
 			break
 		} else {
-			log.Printf("[ERROR] request not auth, op: %d", p.Op)
+			log.Println(fmt.Sprintf("[ERROR] request not auth, op: %d", p.Op))
 		}
 	}
 	if mid, key, rid, accepts, hb, err = s.Connect(ctx, p, cookie); err != nil {
