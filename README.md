@@ -50,7 +50,7 @@ zookeeper kafka redis golang环境（建议>=1.17）
 
 
 
-**comet:**
+**logic:**
 
 **docker build -t logic:v1 . -f Dockerfile_logic**
 
