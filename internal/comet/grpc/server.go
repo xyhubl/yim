@@ -11,7 +11,8 @@ import (
 )
 
 var (
-	ErrPushMsgArg = errors.New("grpc: rpc push msg error")
+	ErrPushMsgArg       = errors.New("grpc: rpc push msg error")
+	ErrBroadCastRoomArg = errors.New("grpc: rpc broadcast room arg error")
 )
 
 func New(c *conf.RpcServer, s *comet.Server) *grpc.Server {
@@ -53,4 +54,14 @@ func (s *server) PushMsg(ctx context.Context, req *pb.PushMsgReq) (reply *pb.Pus
 		}
 	}
 	return &pb.PushMsgReply{}, nil
+}
+
+func (s *server) BroadcastRoom(ctx context.Context, req *pb.BroadcastRoomReq) (reply *pb.BroadcastRoomReply, err error) {
+	if req.Proto == nil || req.RoomID == "" {
+		return nil, ErrBroadCastRoomArg
+	}
+	for _, bucket := range s.srv.Buckets() {
+		bucket.BroadcastRoom(req)
+	}
+	return &pb.BroadcastRoomReply{}, nil
 }

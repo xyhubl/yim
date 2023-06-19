@@ -18,7 +18,7 @@ type connectParam struct {
 	Accepts  []int32 `json:"accepts"`
 }
 
-func (l *Logic) Connect(c context.Context, server, cookie string, token []byte) (mid int64, key, roomID string, accepts []int32, hb int64, err error) {
+func (l *Logic) Connect(ctx context.Context, server, cookie string, token []byte) (mid int64, key, roomID string, accepts []int32, hb int64, err error) {
 	param := new(connectParam)
 	if err = json.Unmarshal(token, param); err != nil {
 		zap.L().Error("Connect Unmarshal err:" + err.Error())
@@ -34,11 +34,11 @@ func (l *Logic) Connect(c context.Context, server, cookie string, token []byte) 
 	}
 	// 记录授权信息
 	if mid > 0 {
-		if err = dao.BaseDao.HSetExpire(c, dao.BaseDao.RedisExpire, dao.KeyMidServer(mid), key, server); err != nil {
+		if err = dao.BaseDao.HSetExpire(ctx, dao.BaseDao.RedisExpire, dao.KeyMidServer(mid), key, server); err != nil {
 			zap.L().Error("Connect HSetExpire err:" + err.Error())
 			return
 		}
-		if err = dao.BaseDao.SetExpire(c, dao.KeyKeyServer(key), server, dao.BaseDao.RedisExpire); err != nil {
+		if err = dao.BaseDao.SetExpire(ctx, dao.KeyKeyServer(key), server, dao.BaseDao.RedisExpire); err != nil {
 			zap.L().Error("Connect SetExpire err:" + err.Error())
 			return
 		}
@@ -57,4 +57,16 @@ func (l *Logic) DisConnect(ctx context.Context, mid int64, key, server string) e
 		return err
 	}
 	return err
+}
+
+func (l *Logic) Heartbeat(ctx context.Context, mid int64, key, server string) error {
+	if err := dao.BaseDao.SetKeyExpire(ctx, dao.KeyMidServer(mid), dao.BaseDao.RedisExpire); err != nil {
+		zap.L().Error("Heartbeat SetKeyExpire err: " + err.Error() + fmt.Sprintf("mid: %d, key: %s, server: %s", mid, key, server))
+		return err
+	}
+	if err := dao.BaseDao.SetKeyExpire(ctx, dao.KeyKeyServer(key), dao.BaseDao.RedisExpire); err != nil {
+		zap.L().Error("Heartbeat SetKeyExpire err: " + err.Error() + fmt.Sprintf("mid: %d, key: %s, server: %s", mid, key, server))
+		return err
+	}
+	return nil
 }

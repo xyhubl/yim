@@ -49,5 +49,6 @@ func (s *server) Disconnect(ctx context.Context, req *pb.DisconnectReq) (*pb.Dis
 }
 
 func (s *server) Heartbeat(ctx context.Context, req *pb.HeartbeatReq) (*pb.HeartbeatReply, error) {
-	return nil, nil
+	err := s.srv.Heartbeat(ctx, req.Mid, req.Key, req.Server)
+	return &pb.HeartbeatReply{}, err
 }

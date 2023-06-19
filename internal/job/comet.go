@@ -46,6 +46,9 @@ type Comet struct {
 	pushChanNum uint64                   // 单聊消息数量
 	pushChan    []chan *comet.PushMsgReq // 单聊消息
 
+	roomChanNum uint64                         // 群聊消息数量
+	roomChan    []chan *comet.BroadcastRoomReq // 群聊消息
+
 	routineSize uint64
 
 	ctx       context.Context
@@ -56,6 +59,7 @@ func newComet(c *conf.Config) *Comet {
 	cmt := &Comet{
 		serverID:    "yim.comet", // 暂定一个
 		pushChan:    make([]chan *comet.PushMsgReq, c.Comet.RoutineSize),
+		roomChan:    make([]chan *comet.BroadcastRoomReq, c.Comet.RoutineSize),
 		routineSize: uint64(c.Comet.RoutineSize),
 	}
 	cmt.client = newCometClient(c.RpcClient)
@@ -63,7 +67,8 @@ func newComet(c *conf.Config) *Comet {
 
 	for i := 0; i < c.Comet.RoutineSize; i++ {
 		cmt.pushChan[i] = make(chan *comet.PushMsgReq, c.Comet.RoutineChan)
-		go cmt.process(cmt.pushChan[i])
+		cmt.roomChan[i] = make(chan *comet.BroadcastRoomReq, c.Comet.RoutineChan)
+		go cmt.process(cmt.pushChan[i], cmt.roomChan[i])
 	}
 	return cmt
 }
@@ -71,12 +76,17 @@ func newComet(c *conf.Config) *Comet {
 func (c *Comet) Push(req *comet.PushMsgReq) {
 	idx := atomic.AddUint64(&c.pushChanNum, 1) % c.routineSize
 	c.pushChan[idx] <- req
-	return
 }
 
-func (c *Comet) process(pushChan chan *comet.PushMsgReq) {
+func (c *Comet) BroadcastRoom(req *comet.BroadcastRoomReq) {
+	idx := atomic.AddUint64(&c.roomChanNum, 1) % c.routineSize
+	c.roomChan[idx] <- req
+}
+
+func (c *Comet) process(pushChan chan *comet.PushMsgReq, roomChan chan *comet.BroadcastRoomReq) {
 	for {
 		select {
+		// zh: 单聊
 		case req := <-pushChan:
 			if _, err := c.client.PushMsg(context.Background(), &comet.PushMsgReq{
 				Keys:    req.Keys,
@@ -84,6 +94,14 @@ func (c *Comet) process(pushChan chan *comet.PushMsgReq) {
 				ProtoOp: req.ProtoOp,
 			}); err != nil {
 				log.Println("[ERROR] process PushMsg err: ", err)
+			}
+		//zh: 群聊
+		case req := <-roomChan:
+			if _, err := c.client.BroadcastRoom(context.Background(), &comet.BroadcastRoomReq{
+				RoomID: req.RoomID,
+				Proto:  req.Proto,
+			}); err != nil {
+				log.Println("[ERROR] process BroadcastRoom err: ", err)
 			}
 		case <-c.ctx.Done():
 			return
@@ -100,6 +118,9 @@ func (c *Comet) Close() error {
 		for {
 			n := 0
 			for _, ch := range c.pushChan {
+				n += len(ch)
+			}
+			for _, ch := range c.roomChan {
 				n += len(ch)
 			}
 			if n == 0 {

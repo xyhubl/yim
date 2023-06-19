@@ -1,7 +1,9 @@
 package comet
 
 import (
+	pb "github.com/xyhubl/yim/api/comet"
 	"sync"
+	"sync/atomic"
 
 	"github.com/xyhubl/yim/internal/comet/conf"
 )
@@ -13,18 +15,24 @@ type Bucket struct {
 	chs   map[string]*Channel
 	rooms map[string]*Room
 
+	routines    []chan *pb.BroadcastRoomReq // 监听room消息的缓冲通道
+	routinesNum uint64
+
 	ipCnts map[string]int32
 }
 
 func NewBucket(c *conf.Bucket) (b *Bucket) {
 	b = new(Bucket)
 	b.chs = make(map[string]*Channel, c.Channel)
-	b.rooms = make(map[string]*Room, c.Room)
-
 	b.ipCnts = make(map[string]int32)
-
 	b.c = c
-
+	// zh: 房间消费监听
+	b.rooms = make(map[string]*Room, c.Room)
+	b.routines = make([]chan *pb.BroadcastRoomReq, c.RoutineAmount)
+	for i := uint64(0); i < c.RoutineAmount; i++ {
+		b.routines[i] = make(chan *pb.BroadcastRoomReq, c.RoutineSize)
+		go b.roomProc(b.routines[i])
+	}
 	return
 }
 
@@ -128,4 +136,19 @@ func (b *Bucket) Rooms() (res map[string]struct{}) {
 	}
 	b.cLock.RUnlock()
 	return
+}
+
+func (b *Bucket) BroadcastRoom(req *pb.BroadcastRoomReq) {
+	num := atomic.AddUint64(&b.routinesNum, 1) % b.c.RoutineAmount
+	b.routines[num] <- req
+}
+
+// zh: 监听房间消息
+func (b *Bucket) roomProc(c chan *pb.BroadcastRoomReq) {
+	for {
+		req := <-c
+		if room := b.Room(req.RoomID); room != nil {
+			room.Push(req.Proto)
+		}
+	}
 }

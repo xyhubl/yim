@@ -48,6 +48,10 @@ func (s *Server) Bucket(subKey string) *Bucket {
 	return s.buckets[idx]
 }
 
+func (s *Server) Buckets() []*Bucket {
+	return s.buckets
+}
+
 // zh: 随机心跳时间
 func (s *Server) RandServerHeartbeat() time.Duration {
 	return minServerHeartbeat + time.Duration(rand.Int63n(int64(maxServerHeartbeat-minServerHeartbeat)))

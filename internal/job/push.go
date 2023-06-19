@@ -14,7 +14,10 @@ func (j *Job) push(ctx context.Context, pushMsg *pb.PushMsg) error {
 	switch pushMsg.Type {
 	case pb.Type_PUSH:
 		j.pushKeys(pushMsg.Operation, pushMsg.Server, pushMsg.Keys, pushMsg.Msg)
+	case pb.Type_ROOM:
+		j.getRoom(pushMsg.Room).Push(pushMsg.Operation, pushMsg.Msg)
 	}
+
 	return err
 }
 

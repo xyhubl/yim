@@ -1,0 +1,25 @@
+Base:
+  host: "yim.job"
+
+kafka:
+  topic: "yim-push-topic"
+  group: "yim-push-group-job"
+  brokers:
+  - "120.27.141.27:9092"
+
+comet:
+  routine_chan: 32
+  routine_size: 1024
+
+rpc_client:
+  addr: "127.0.0.1:8083"
+  dial: 1
+  timeout: 3
+
+room:
+  batch: 5
+  signal: 30
+  idle: 30
+
+
+

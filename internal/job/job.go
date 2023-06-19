@@ -1,23 +1,30 @@
 package job
 
 import (
+	"github.com/xyhubl/yim/api/comet"
 	pb "github.com/xyhubl/yim/api/logic"
+	"github.com/xyhubl/yim/api/protocol"
 	"github.com/xyhubl/yim/internal/job/conf"
 	"golang.org/x/net/context"
 	"google.golang.org/protobuf/proto"
 	"gopkg.in/Shopify/sarama.v1"
 	"log"
+	"sync"
 )
 
 type Job struct {
 	c             *conf.Config
 	cometServers  map[string]*Comet
 	consumerGroup sarama.ConsumerGroup
+
+	rooms    map[string]*Room
+	roomsMtx sync.RWMutex
 }
 
 func New(c *conf.Config) *Job {
 	j := &Job{
-		c: c,
+		c:     c,
+		rooms: make(map[string]*Room),
 	}
 	// todo 由于还没有支持 服务发现注册 暂时写死
 	j.cometServers = make(map[string]*Comet)
@@ -71,4 +78,18 @@ func (j *Job) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.Con
 		session.MarkMessage(msg, "")
 	}
 	return nil
+}
+
+func (j *Job) broadcastRoomRawBytes(roomId string, body []byte) {
+	req := &comet.BroadcastRoomReq{
+		RoomID: roomId,
+		Proto: &protocol.Proto{
+			Ver:  1,
+			Op:   protocol.OpRaw,
+			Body: body,
+		},
+	}
+	for _, c := range j.cometServers {
+		c.BroadcastRoom(req)
+	}
 }
