@@ -31,7 +31,7 @@
         var textEncoder = new TextEncoder();
         var heartbeatInterval;
         function connect() {
-            var ws = new WebSocket('ws://120.27.141.27:8081/sub');
+            var ws = new WebSocket('ws://127.0.0.1:8081/sub');
             //var ws = new WebSocket('ws://127.0.0.1:3102/sub');
             ws.binaryType = 'arraybuffer';
             ws.onopen = function() {
