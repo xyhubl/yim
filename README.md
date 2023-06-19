@@ -16,6 +16,14 @@ logic路由层，目前实现单聊
 
 
 
+流程:
+
+客户端连接ws -> auth- > 建立连接
+
+logic发送消息 -> job分发 -> comet发送消息到客户端
+
+
+
 需要环境:
 
 zookeeper kafka redis golang环境（建议>=1.17） 
@@ -50,6 +58,29 @@ zookeeper kafka redis golang环境（建议>=1.17）
 
 
 
+消息协议：
+
+```
+| parameter             | is required  | type     | comment|
+| :-----                | :---         | :---     | :---       |
+| package length        | true  | int32 bigendian | package length |
+| header Length         | true  | int16 bigendian | header length |
+| ver                   | true  | int16 bigendian | Protocol version |
+| operation             | true |  int32 bigendian | Operation |
+| seq                   | true |  int32 bigendian | jsonp callback |
+| body                  | false | binary          | $(package lenth) - $(header length) |
+
+
+| operation     | comment | 
+| :-----     | :---  |
+| 2 | Client send heartbeat|
+| 3 | Server reply heartbeat|
+| 7 | authentication request |
+| 8 | authentication response |
+```
+
+
+
 后续规划:
 
 1. 群聊、广播、事件订阅
@@ -57,6 +88,5 @@ zookeeper kafka redis golang环境（建议>=1.17）
 3. ack机制
 4. 服务发现注册
 5. 等等..
-
 
 
