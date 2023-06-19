@@ -12,35 +12,128 @@
           // alert(JSON.stringify(data));
         }
       });
+
+      function sendPushMidsRequest() {
+        var request = new XMLHttpRequest();
+        request.open('POST', 'http://120.27.141.27:8080/v1/push/mids');
+        request.setRequestHeader('Content-Type', 'application/json');
+        request.onload = function() {
+          if (request.status >= 200 && request.status < 400) {
+            console.log(request.responseText);
+          } else {
+            console.error('Request failed with status:', request.status);
+          }
+        };
+        request.onerror = function() {
+          console.error('Request failed');
+        };
+        var requestBody = JSON.stringify({
+          op: 1000,
+          mids: [123],
+          msg: '测试一下·单聊'
+        });
+        request.send(requestBody);
+      }
+
+      function sendPushRoomRequest() {
+        var request = new XMLHttpRequest();
+        request.open('POST', 'http://120.27.141.27:8080/v1/push/room');
+        request.setRequestHeader('Content-Type', 'application/json');
+        request.onload = function() {
+          if (request.status >= 200 && request.status < 400) {
+            console.log(request.responseText);
+          } else {
+            console.error('Request failed with status:', request.status);
+          }
+        };
+        request.onerror = function() {
+          console.error('Request failed');
+        };
+        var requestBody = JSON.stringify({
+          op: 1000,
+          typ: 'live',
+          room: '1000',
+          body: '测试群聊'
+        });
+        request.send(requestBody);
+      }
     </script>
     <style type="text/css">
         span{ display:block;}
     </style>
   </head>
   <body>
-    <h1>websocket 123</h1>
-    <h2>status:</h2>
-    <span id="status"></span>
-    <h2>push</h2>
-    <div>
-      <div>测试请主动请求</div>
-       <p>curl -d 'mid message' 'http://120.27.141.27:8080/v1/push/mids' body:
-         {
-           "op":1000,
-           "mids": [
-           123,124
-           ],
-           "msg":"测试一下·单聊"
-         }</p>
-      <p>curl -d 'mid message' 'http://120.27.141.27:8080/v1/push/room' body:
-        {
-        "op": 1000,
-        "typ":"live",
-        "room":"1000",
-        "body":"测试群聊"
-        }</p>
-    </div>
-    <h2>message:</h2>
-    <div id="box"></div>
+  <h1>WebSocket  用户:123</h1>
+  <h2>Status:</h2>
+  <span id="status"></span>
+  <h2>Push</h2>
+  <div>
+    <button onclick="sendPushMidsRequest()">发送单聊请求</button>
+    <pre>
+      <code>curl -d 'mid message' 'http://120.27.141.27:8080/v1/push/mids' body:
+{
+  "op": 1000,
+  "mids": [
+    123
+  ],
+  "msg": "测试一下·单聊"
+}</code>
+    </pre>
+    <button onclick="sendPushRoomRequest()">发送群聊请求</button>
+    <pre>
+    <code>curl -d 'mid message' 'http://120.27.141.27:8080/v1/push/room' body:
+{
+  "op": 1000,
+  "typ": "live",
+  "room": "1000",
+  "body": "测试群聊"
+}</code>
+    </pre>
+  </div>
+  <h2>Message:</h2>
+  <div id="box"></div>
   </body>
 </html>
+
+<style type="text/css">
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    padding: 0;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  h2 {
+    font-size: 18px;
+    margin-top: 20px;
+  }
+
+  #status {
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  #box {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-top: 10px;
+  }
+
+  code {
+    display: block;
+    font-family: Consolas, monospace;
+    background-color: #f5f5f5;
+    padding: 5px;
+    margin-top: 10px;
+  }
+
+  pre {
+    margin: 0;
+  }
+</style>
+
+
+
