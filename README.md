@@ -32,7 +32,24 @@ zookeeper kafka redis golang环境（建议>=1.17）
 
 消息协议：
 
-![image-20230619110221398](/Users/xy/Library/Application Support/typora-user-images/image-20230619110221398.png)
+```
+| parameter             | is required  | type     | comment|
+| :-----                | :---         | :---     | :---       |
+| package length        | true  | int32 bigendian | package length |
+| header Length         | true  | int16 bigendian | header length |
+| ver                   | true  | int16 bigendian | Protocol version |
+| operation             | true |  int32 bigendian | Operation |
+| seq                   | true |  int32 bigendian | jsonp callback |
+| body                  | false | binary          | $(package lenth) - $(header length) |
+
+
+| operation     | comment | 
+| :-----     | :---  |
+| 2 | Client send heartbeat|
+| 3 | Server reply heartbeat|
+| 7 | authentication request |
+| 8 | authentication response |
+```
 
 
 
