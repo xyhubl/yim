@@ -100,7 +100,7 @@ func (s *Server) ServeWebsocket(conn net.Conn, rp, wp *bytes.Pool, tr *xtime.Tim
 		tr.Del(trd)
 		rp.Put(rb)
 		if err != io.EOF {
-			log.Printf("[ERROR]: websocket ReadRequest err: %v, req.RequestURI: %s, step: %d", err, req.RequestURI, step)
+			log.Printf("[ERROR]: websocket ReadRequest err: %v, step: %d", err, step)
 		}
 		return
 	}
