@@ -18,7 +18,35 @@ logic路由层，目前实现单聊
 
 需要环境:
 
-zookeeper kafka redis golang环境（建议>=1.17）
+zookeeper kafka redis golang环境（建议>=1.17） 
+
+
+
+
+
+启动:
+
+**comet:**
+
+**docker build -t comet:v1 . -f Dockerfile_comet**
+
+**docker run -d  -p 8081:8081 -p 8083:8083 -it comet:v1  -config ./cmd/comet/dev/comet.yaml** 
+
+
+
+**job:**
+
+**docker build -t job:v1 . -f Dockerfile_job**
+
+**docker run -d   job:v1  -config ./cmd/job/dev/job.yaml** 
+
+
+
+**comet:**
+
+**docker build -t logic:v1 . -f Dockerfile_logic**
+
+**docker run -d  -p 8080:8080 -p 9091:9091 -it logic:v1  -config ./cmd/logic/dev/logic.yaml** 
 
 
 
