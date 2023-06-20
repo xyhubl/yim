@@ -159,9 +159,10 @@ func (s *Server) ServeWebsocket(conn net.Conn, rp, wp *bytes.Pool, tr *xtime.Tim
 			break
 		}
 		if err = p.ReadWebsocket(ws); err != nil {
-			log.Println("[ERROR] ServeWebsocket ReadWebsocket err"+err.Error(), ch.Key, ch.Mid)
+			log.Println("[ERROR] ServeWebsocket ReadWebsocket err"+err.Error(), ch.Key, ch.Mid, p.Op, p.Seq, p.Body)
 			break
 		}
+		log.Println("[INFO] receive:", ch.Mid, ch.Key, p.Op, string(p.Body))
 		if p.Op == protocol.OpHeartbeat {
 			// zh: 如果是心跳,则重新计时
 			tr.Set(trd, hb)
@@ -169,6 +170,7 @@ func (s *Server) ServeWebsocket(conn net.Conn, rp, wp *bytes.Pool, tr *xtime.Tim
 			p.Body = nil
 			if now := time.Now(); now.Sub(lastHb) > serverHeartbeat {
 				if errHeartBeat := s.Heartbeat(ctx, ch.Mid, ch.Key); errHeartBeat == nil {
+					log.Println("[INFO] heartbeat", ch.Mid, ch.Key)
 					lastHb = now
 				} else {
 					// zh: 错误的话,不用做处理,定时器会自动执行,释放内存
@@ -177,6 +179,7 @@ func (s *Server) ServeWebsocket(conn net.Conn, rp, wp *bytes.Pool, tr *xtime.Tim
 			}
 			step++
 		} else {
+			log.Println("[INFO] operate", p.Op, string(p.Body), ch.Mid, ch.Key)
 			// zh: 如果不是心跳事件
 			if err = s.Operate(ctx, p, ch, b); err != nil {
 				break
