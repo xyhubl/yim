@@ -159,6 +159,7 @@ func (s *Server) ServeWebsocket(conn net.Conn, rp, wp *bytes.Pool, tr *xtime.Tim
 			break
 		}
 		if err = p.ReadWebsocket(ws); err != nil {
+			log.Println("[ERROR] ServeWebsocket ReadWebsocket err"+err.Error(), ch.Key, ch.Mid)
 			break
 		}
 		if p.Op == protocol.OpHeartbeat {

@@ -16,8 +16,8 @@
     var appendMsg = function(text) {
         var span = document.createElement("SPAN");
         var text = document.createTextNode(text);
-        span.appendChild(text);
-        document.getElementById("box").appendChild(span);
+        span.insertBefore(text);
+        document.getElementById("box").insertBefore(span);
     }
 
     Client.prototype.createConnect = function(max, delay) {

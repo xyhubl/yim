@@ -116,6 +116,7 @@
                 headerView.setInt16(verOffset, 1);
                 headerView.setInt32(opOffset, 7);
                 headerView.setInt32(seqOffset, 1);
+
                 ws.send(mergeArrayBuffer(headerBuf, bodyBuf));
 
                 appendMsg("send: auth token: " + token);

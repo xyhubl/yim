@@ -68,8 +68,9 @@
 <h1>WebSocket 用户:124</h1>
 <h2>Status:</h2>
 <span id="status"></span>
-<h2>Push</h2>
 <div>
+  <h2>Message:</h2>
+  <div id="box"></div>
   <button onClick="sendPushMidsRequest()">发送单聊请求</button>
   <pre>
       <code>curl -d 'mid message' 'http://120.27.141.27:8080/v1/push/mids' body:
@@ -92,8 +93,7 @@
 }</code>
     </pre>
 </div>
-<h2>Message:</h2>
-<div id="box"></div>
+
 </body>
 </html>
 
