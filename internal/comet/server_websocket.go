@@ -162,7 +162,7 @@ func (s *Server) ServeWebsocket(conn net.Conn, rp, wp *bytes.Pool, tr *xtime.Tim
 			log.Println("[ERROR] ServeWebsocket ReadWebsocket err"+err.Error(), ch.Key, ch.Mid, p.Op, p.Seq, p.Body)
 			break
 		}
-		log.Println("[INFO] receive:", ch.Mid, ch.Key, p.Op, string(p.Body))
+		log.Println("[INFO] receive:", ch.Mid, ch.Key, p.Op, p.Ver, p.Seq, string(p.Body), step)
 		if p.Op == protocol.OpHeartbeat {
 			// zh: 如果是心跳,则重新计时
 			tr.Set(trd, hb)
