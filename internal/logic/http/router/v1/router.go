@@ -11,8 +11,8 @@ func InitRouter(middlewares ...gin.HandlerFunc) *gin.Engine {
 	router.GET("/ping", controller.Ping)
 
 	v1 := router.Group("v1")
+	push := v1.Group("/push")
 	{
-		push := v1.Group("/push")
 		push.POST("/keys", controller.PushKeys)
 		push.POST("/mids", controller.PushMids)
 		push.POST("/room", controller.PushRoom)

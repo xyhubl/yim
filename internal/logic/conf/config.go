@@ -6,6 +6,7 @@ type Config struct {
 	Base       vipers.Base `mapstructure:"base"`
 	Redis      *Redis      `mapstructure:"redis"`
 	Kafka      *Kafka      `mapstructure:"kafka"`
+	Mongo      *Mongo      `mapstructure:"mongo"`
 	RPCServer  *RPCServer  `mapstructure:"rpc_server"`
 	HttpServer *HTTPServer `mapstructure:"http_server"`
 }
@@ -44,4 +45,11 @@ type Redis struct {
 type Kafka struct {
 	Topic   string
 	Brokers []string
+}
+
+type Mongo struct {
+	Addr     string `yaml:"addr"`
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+	Database string `yaml:"database"`
 }

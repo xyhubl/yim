@@ -1,6 +1,10 @@
 package dao
 
 import (
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"golang.org/x/net/context"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -14,8 +18,8 @@ type Base struct {
 	c           *conf.Config
 	Redis       *redis.Client
 	RedisExpire time.Duration
-
-	KafkaPub kafka.SyncProducer
+	KafkaPub    kafka.SyncProducer
+	Mongo       *mongo.Client
 }
 
 func New(c *conf.Config) *Base {
@@ -24,7 +28,9 @@ func New(c *conf.Config) *Base {
 		KafkaPub:    newKafka(c.Kafka),
 		Redis:       newRedis(c.Redis),
 		RedisExpire: time.Duration(c.Redis.Expire) * time.Second,
+		Mongo:       newMongo(c.Mongo),
 	}
+	defer BaseDao.Close()
 	return BaseDao
 }
 
@@ -52,6 +58,28 @@ func newKafka(c *conf.Kafka) kafka.SyncProducer {
 	return pub
 }
 
-func (b *Base) Close() error {
-	return b.Redis.Close()
+func newMongo(c *conf.Mongo) *mongo.Client {
+	auth := &options.Credential{
+		Username: c.Username,
+		Password: c.Password,
+	}
+	opt := &options.ClientOptions{
+		Hosts: []string{c.Addr},
+		Auth:  auth,
+	}
+	client, err := mongo.Connect(context.Background(), opt)
+	if err != nil {
+		panic(err)
+	}
+	if err = client.Ping(context.Background(), readpref.Primary()); err != nil {
+		panic(err)
+	}
+	return client
+}
+
+func (b *Base) Close() {
+	b.Redis.Close()
+	b.KafkaPub.Close()
+	b.Mongo.Disconnect(context.Background())
+	return
 }

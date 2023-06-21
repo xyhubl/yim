@@ -3,6 +3,7 @@ package logic
 import (
 	"github.com/xyhubl/yim/internal/logic/conf"
 	"github.com/xyhubl/yim/internal/logic/dao"
+	"github.com/xyhubl/yim/pkg/idx"
 	"github.com/xyhubl/yim/pkg/log"
 )
 
@@ -13,6 +14,7 @@ type Logic struct {
 }
 
 func New(c *conf.Config) (l *Logic) {
+	idx.NewIdGenera(c.Base.WorkId)
 	dao.New(c)
 	log.InitLog("info")
 	l = &Logic{

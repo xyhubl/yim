@@ -30,3 +30,8 @@ kafka:
   - "120.27.141.27:9092"
 
 
+mongo:
+  addr: "127.0.0.1:55001"
+  username: "root"
+  password: "root"
+  database: "test"
